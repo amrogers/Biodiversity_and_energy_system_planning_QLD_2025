@@ -1,3 +1,18 @@
+# =============================================================================
+# Net Present Value (NPV) Analysis and Visualization
+# =============================================================================
+# This script creates bar plots showing NPV of energy infrastructure investments
+# under different biodiversity protection scenarios, with components for
+# transmission infrastructure and renewable energy projects.
+#
+# Data requirements:
+# - Supplementary data folder containing Energy_system_model_outputs/eplus_Domestic_NPV_2025.xlsx
+# - Additional file needed: Build percent_build_vs_trans.xlsx (if available)
+#
+# Author: Andrwe Rogers 
+# Date: June 2025
+# =============================================================================
+
 # Load required libraries
 library(ggplot2)
 library(readxl)
@@ -9,231 +24,307 @@ library(cowplot)
 library(grid)
 library(gridExtra)
 
-# Read both files
-npv_data <- read_excel("C:/Users/andrewrogers/OneDrive - The University of Melbourne/Project_documents/results/eplus_Domestic_NPV_2025.xlsx",
-                       col_types = c("text", "text", "numeric", "numeric", "numeric"))  # Explicitly set column types
+# =============================================================================
+# Setup and Path Configuration
+# =============================================================================
 
-percent_data <- read_excel("C:/Users/andrewrogers/OneDrive - The University of Melbourne/Project_documents/results/Build percent_build_vs_trans.xlsx",
-                           col_types = c("text", "text", "numeric", "numeric", "numeric"))
+# Define data file paths relative to supplementary data folder
+npv_file <- file.path("Energy_system_model_outputs", "eplus_Domestic_NPV_2025.xlsx")
 
-# Process NPV data and ensure thresholds ordering
+# Note: The percent data file is not in the current supplementary data structure
+# If you have this file, place it in the appropriate folder and update the path
+percent_file <- "Build percent_build_vs_trans.xlsx"  # Update path as needed
+
+# Verify NPV data file exists
+if (!file.exists(npv_file)) {
+  stop("Error: NPV data file not found at: ", npv_file,
+       "\nPlease ensure you are running this script from the supplementary data folder.")
+}
+
+cat("Reading NPV data from:", npv_file, "\n")
+
+# =============================================================================
+# Data Loading and Processing
+# =============================================================================
+
+# Read NPV data with explicit column types for reliability
+npv_data <- read_excel(
+  npv_file,
+  col_types = c("text", "text", "numeric", "numeric", "numeric")
+)
+
+cat("NPV data loaded successfully.\n")
+cat("Columns:", paste(names(npv_data), collapse = ", "), "\n")
+cat("Scenarios:", paste(unique(npv_data[[1]]), collapse = ", "), "\n")
+cat("Thresholds:", paste(unique(npv_data[[2]]), collapse = ", "), "\n")
+
+# Process NPV data and ensure proper threshold ordering
 npv_long <- npv_data %>%
   pivot_longer(
     cols = c(`2030`, `2040`, `2050`),
     names_to = "year",
-    values_to = "value"
+    values_to = "npv_value"
   ) %>%
-  # Filter out the 0.1 threshold
+  # Use column names directly (adjust if your column names differ)
+  rename(
+    scenario = 1,
+    thresholds = 2
+  ) %>%
+  # Filter out 0.1 threshold if present (as per original script)
   filter(thresholds != "0.1") %>%
-  # Use direct factor() with explicit levels, removing 0.1
+  # Set factor levels for proper ordering
   mutate(thresholds = factor(thresholds, levels = c("BAU", "0.3", "0.5", "0.7", "0.9")))
 
-# Process percent data
-percent_long <- percent_data %>%
-  pivot_longer(
-    cols = c(`2030`, `2040`, `2050`),
-    names_to = "year",
-    values_to = "percent"
-  ) %>%
-  # Filter out the 0.1 threshold to match
-  filter(thresholds != "0.1")
+# =============================================================================
+# Handle Build Percentage Data (Optional)
+# =============================================================================
 
-# Combine the datasets
-combined_data <- npv_long %>%
-  left_join(percent_long, by = c("scenario", "thresholds", "year")) %>%
-  mutate(build_value = value * percent) %>%
-  # Reapply factor after join to ensure ordering is preserved, without 0.1
-  mutate(thresholds = factor(thresholds, levels = c("BAU", "0.3", "0.5", "0.7", "0.9")))
-
-# Print to verify the levels (optional debugging)
-print("Threshold levels:")
-print(levels(combined_data$thresholds))
-print("Unique threshold values:")
-print(unique(combined_data$thresholds))
-
-# Create the plot
-p <- ggplot(combined_data, aes(x = factor(year))) +
-  # Base bars (total NPV)
-  geom_col_pattern(
-    aes(y = value, fill = thresholds),
-    pattern = 'none',
-    colour = "black",
-    position = position_dodge(width = 0.9),
-    width = 0.8
-  ) +
-  # Overlay pattern bars (build portion)
-  geom_col_pattern(
-    aes(y = build_value, fill = thresholds),
-    pattern = 'stripe',
-    pattern_fill = "black",
-    pattern_angle = 45,
-    pattern_density = 0.1,
-    pattern_spacing = 0.025,
-    colour = "black",  # Add black outline to the patterned bars
-    position = position_dodge(width = 0.9),
-    width = 0.8
-  ) +
+# Check if percentage data file exists
+if (file.exists(percent_file)) {
+  cat("Reading build percentage data from:", percent_file, "\n")
   
-  # Faceting
-  facet_wrap(~scenario) +
+  percent_data <- read_excel(
+    percent_file,
+    col_types = c("text", "text", "numeric", "numeric", "numeric")
+  )
   
-  # Customize appearance
+  # Process percent data
+  percent_long <- percent_data %>%
+    pivot_longer(
+      cols = c(`2030`, `2040`, `2050`),
+      names_to = "year",
+      values_to = "build_percent"
+    ) %>%
+    rename(scenario = 1, thresholds = 2) %>%
+    filter(thresholds != "0.1")
+  
+  # Combine datasets
+  combined_data <- npv_long %>%
+    left_join(percent_long, by = c("scenario", "thresholds", "year")) %>%
+    mutate(
+      build_value = npv_value * (build_percent / 100),  # Convert percent to proportion
+      thresholds = factor(thresholds, levels = c("BAU", "0.3", "0.5", "0.7", "0.9"))
+    )
+  
+  use_build_data <- TRUE
+  cat("Build percentage data integrated successfully.\n")
+  
+} else {
+  cat("Warning: Build percentage data file not found at:", percent_file, "\n")
+  cat("Creating visualization with NPV data only.\n")
+  
+  # Use NPV data only
+  combined_data <- npv_long
+  use_build_data <- FALSE
+}
+
+# =============================================================================
+# Data Validation and Summary
+# =============================================================================
+
+cat("\nData Summary:\n")
+cat("- Scenarios:", paste(unique(combined_data$scenario), collapse = ", "), "\n")
+cat("- Threshold levels:", paste(levels(combined_data$thresholds), collapse = ", "), "\n")
+cat("- Years:", paste(unique(combined_data$year), collapse = ", "), "\n")
+cat("- Total observations:", nrow(combined_data), "\n")
+
+if (use_build_data) {
+  cat("- Build component analysis: Enabled\n")
+} else {
+  cat("- Build component analysis: Disabled (data not available)\n")
+}
+
+# =============================================================================
+# Create Visualization
+# =============================================================================
+
+cat("\nCreating NPV visualization...\n")
+
+# Base plot setup
+p <- ggplot(combined_data, aes(x = factor(year)))
+
+if (use_build_data) {
+  # Create plot with build components
+  p <- p +
+    # Base bars (total NPV)
+    geom_col_pattern(
+      aes(y = npv_value, fill = thresholds),
+      pattern = 'none',
+      colour = "black",
+      position = position_dodge(width = 0.9),
+      width = 0.8
+    ) +
+    # Overlay pattern bars (build portion)
+    geom_col_pattern(
+      aes(y = build_value, fill = thresholds),
+      pattern = 'stripe',
+      pattern_fill = "black",
+      pattern_angle = 45,
+      pattern_density = 0.1,
+      pattern_spacing = 0.025,
+      colour = "black",
+      position = position_dodge(width = 0.9),
+      width = 0.8
+    )
+} else {
+  # Simple bars without build components
+  p <- p +
+    geom_col(
+      aes(y = npv_value, fill = thresholds),
+      colour = "black",
+      position = position_dodge(width = 0.9),
+      width = 0.8
+    )
+}
+
+# Add common plot elements
+p <- p +
+  facet_wrap(~scenario, scales = "free_y") +
   theme_minimal() +
   labs(
     x = "Year",
     y = "NPV (billion AUD)",
-    fill = "Thresholds"
+    fill = "Protection Threshold",
+    title = "Net Present Value of Energy Infrastructure Investments",
+    subtitle = "Under different biodiversity protection scenarios",
+    caption = if (use_build_data) {
+      "Solid bars: Total NPV; Striped pattern: Solar and wind projects component"
+    } else {
+      "Source: Energy system modeling results"
+    }
   ) +
-  
-  # Theme customization
   theme(
     axis.title = element_text(size = 20),
-    axis.text = element_text(size = 20),
+    axis.text = element_text(size = 18),
     axis.text.x = element_text(angle = 0, hjust = 0.5),
-    legend.title = element_text(size = 20),
-    legend.text = element_text(size = 20),
+    legend.title = element_text(size = 18),
+    legend.text = element_text(size = 16),
     panel.grid.minor = element_blank(),
-    strip.text = element_text(face = "bold", size = 20),
-    strip.background = element_rect(fill = "light grey", color = NA),
-    # Remove pattern from legend keys
-    legend.key = element_rect(fill = "white"),
-    legend.key.size = unit(1.5, "cm")
+    strip.text = element_text(face = "bold", size = 18),
+    strip.background = element_rect(fill = "lightgrey", color = "black"),
+    plot.title = element_text(size = 22, face = "bold"),
+    plot.subtitle = element_text(size = 16, color = "grey50"),
+    plot.caption = element_text(size = 12, color = "grey50"),
+    legend.key.size = unit(1.2, "cm")
   ) +
+  scale_fill_brewer(
+    palette = "RdYlBu", 
+    direction = -1,
+    labels = c("BAU" = "Business as Usual", 
+               "0.3" = "30% Protected", 
+               "0.5" = "50% Protected",
+               "0.7" = "70% Protected", 
+               "0.9" = "90% Protected")
+  )
+
+# =============================================================================
+# Create Legend Components (if using build data)
+# =============================================================================
+
+if (use_build_data) {
+  # Adjust legend to remove pattern from threshold legend
+  p <- p + guides(
+    fill = guide_legend(
+      override.aes = list(pattern = "none"),
+      title = "Protection Threshold"
+    )
+  )
   
-  # Color scheme
-  scale_fill_brewer(palette = "RdYlBu", direction = -1)
-
-# Fix the main plot legend
-p <- p + guides(
-  fill = guide_legend(
-    override.aes = list(pattern = "none"),  # Override the pattern in threshold legend
-    title = "Thresholds",
-    label.hjust = 0,       # Left-align the labels
-    label.position = "right",
-    label.theme = element_text(margin = margin(l = 10, r = 0)),  # Add left margin to labels
-    keywidth = unit(1.0, "cm"),
-    keyheight = unit(1.0, "cm")
-  )
-) +
-  # Ensure consistent legend key size and text size
-  theme(
-    legend.key.size = unit(1.0, "cm"),
-    legend.text = element_text(size = 20),
-    legend.title = element_text(size = 20),
-    legend.spacing.x = unit(0.5, "cm"),  # Increase horizontal spacing
-    legend.background = element_rect(fill = NA, color = NA),  # Remove legend background border
-    legend.box.background = element_rect(fill = NA, color = NA),  # Remove legend box background border
-    plot.margin = margin(20, 40, 20, 40, "pt")  # top, right, bottom, left padding
-  )
-
-# Create a minimal plot for the component legend with proper borders
-legend_plot <- ggplot(
-  data.frame(
+  # Create component legend
+  component_legend_data <- data.frame(
     x = c(1, 1),
     y = c(1, 2),
-    fill = c("Added transmission", "Solar and wind projects")
-  ),
-  aes(x = x, y = y, fill = fill)
-) +
-  geom_col_pattern(
-    aes(pattern = fill),  # Map pattern to fill
-    colour = "black",     # Keep the black border around the symbols
-    pattern_fill = "black",
-    pattern_angle = 45,
-    pattern_density = 0.1,
-    pattern_spacing = 0.025,
-    width = 0.7
-  ) +
-  scale_pattern_manual(
-    values = c(
-      "Added transmission" = "none",
-      "Solar and wind projects" = "stripe"
-    ),
-    name = NULL
-  ) +
-  scale_fill_manual(
-    values = c(
-      "Added transmission" = "white",
-      "Solar and wind projects" = "white"
-    ),
-    name = NULL
-  ) +
-  theme_void() +
-  theme(
-    legend.text = element_text(size = 20),
-    legend.key.size = unit(1.0, "cm"),
-    legend.background = element_rect(fill = NA, color = NA),  # Make legend background transparent, no border
-    legend.key = element_rect(fill = "white", color = "black"), # Keep black border around the keys
-    legend.box.background = element_rect(fill = NA, color = NA),  # Make legend box background transparent, no border
-    legend.box.margin = margin(0, 0, 0, 0),  # Remove margin around the legend box
-    legend.spacing.x = unit(0.5, "cm")  # Increase horizontal spacing
-  ) +
-  guides(
-    fill = guide_legend(
-      override.aes = list(
-        pattern = c("none", "stripe"),
-        fill = c("white", "white")
-      ),
-      # Add margin to the left of text labels
-      label.theme = element_text(margin = margin(l = 10, r = 0)),
-      label.hjust = 0,       # Left-align the labels
-      label.position = "right",
-      # Specify legend element dimensions
-      keywidth = unit(1.0, "cm"),
-      keyheight = unit(1.0, "cm")
+    component = c("Transmission Infrastructure", "Solar & Wind Projects")
+  )
+  
+  legend_plot <- ggplot(component_legend_data, aes(x = x, y = y, fill = component)) +
+    geom_col_pattern(
+      aes(pattern = component),
+      colour = "black",
+      pattern_fill = "black",
+      pattern_angle = 45,
+      pattern_density = 0.1,
+      pattern_spacing = 0.025,
+      width = 0.7
+    ) +
+    scale_pattern_manual(
+      values = c("Transmission Infrastructure" = "none", 
+                 "Solar & Wind Projects" = "stripe"),
+      name = "Component"
+    ) +
+    scale_fill_manual(
+      values = c("Transmission Infrastructure" = "white", 
+                 "Solar & Wind Projects" = "white"),
+      name = "Component"
+    ) +
+    theme_void() +
+    theme(
+      legend.text = element_text(size = 16),
+      legend.title = element_text(size = 18),
+      legend.key.size = unit(1.2, "cm")
     )
+  
+  # Extract component legend
+  component_legend <- get_legend(legend_plot)
+  
+  # Create final plot with both legends
+  threshold_legend <- get_legend(p)
+  
+  final_plot <- plot_grid(
+    p + theme(legend.position = "none"),
+    plot_grid(
+      threshold_legend,
+      component_legend,
+      ncol = 1,
+      align = 'v',
+      rel_heights = c(3, 2)
+    ),
+    rel_widths = c(3.5, 1),
+    align = "h",
+    nrow = 1
+  )
+} else {
+  final_plot <- p
+}
+
+# Display the plot
+print(final_plot)
+
+# =============================================================================
+# Save Outputs
+# =============================================================================
+
+# Create output directory
+figures_dir <- "figures"
+if (!dir.exists(figures_dir)) {
+  dir.create(figures_dir, recursive = TRUE)
+  cat("Created figures directory:", figures_dir, "\n")
+}
+
+# Save the plot
+output_filename <- file.path(figures_dir, "npv_analysis_plot.png")
+ggsave(
+  plot = final_plot,
+  filename = output_filename,
+  width = if (use_build_data) 16 else 12,
+  height = 8,
+  dpi = 300,
+  bg = "white",
+  units = "in"
+)
+
+cat("NPV analysis plot saved to:", output_filename, "\n")
+
+# Save data summary
+summary_data <- combined_data %>%
+  group_by(scenario, thresholds, year) %>%
+  summarise(
+    mean_npv = mean(npv_value, na.rm = TRUE),
+    .groups = "drop"
   )
 
-# Extract the legend from this minimal plot
-component_legend_grob <- cowplot::get_legend(legend_plot)
+summary_filename <- file.path(figures_dir, "npv_summary_data.csv")
+write.csv(summary_data, summary_filename, row.names = FALSE)
+cat("NPV summary data saved to:", summary_filename, "\n")
 
-# Extract legends with minimal spacing - apply same fixes to remove borders around text
-threshold_legend <- get_legend(
-  p + 
-    theme(
-      legend.box.margin = margin(0, 0, 0, 0),
-      legend.background = element_rect(fill = NA, color = NA),
-      legend.box.background = element_rect(fill = NA, color = NA),
-      legend.spacing.x = unit(0.5, "cm")  # Increase horizontal spacing
-    ) +
-    guides(
-      fill = guide_legend(
-        label.theme = element_text(margin = margin(l = 10, r = 0)),
-        label.hjust = 0,  # Left-align the labels
-        label.position = "right"
-      )
-    )
-)
-
-# Create the final plot with tighter spacing between legends and proper vertical alignment
-final_plot <- cowplot::plot_grid(
-  p + theme(legend.position = "none"),  # Plot without legend
-  cowplot::plot_grid(
-    NULL,  # Add empty space at top
-    threshold_legend,
-    component_legend_grob,
-    NULL,  # Add empty space at bottom
-    ncol = 1,
-    align = 'v',
-    rel_heights = c(0.5, 4, 2, 0.5),  # Add space above and below
-    axis = 'l',
-    greedy = FALSE,
-    spacing = 0.01  # Reduce spacing between legends
-  ),
-  rel_widths = c(3.5, .8),  # Smaller second value brings legend closer to plot
-  align = "h",
-  nrow = 1,
-  axis = "tb"
-)
-
-
-final_plot
-
-# Save the final plot with both legends
-ggsave(plot = final_plot,
-       filename = "C:/Users/andrewrogers/OneDrive - The University of Melbourne/Project_documents/Images/npv_domestic_plot_with_build_2025AUD.png",
-       width = 18, height = 7, dpi = 300,
-       device = "png",
-       bg = "white",
-       units = "in",
-       limitsize = FALSE)
+cat("\nNPV analysis complete!\n")

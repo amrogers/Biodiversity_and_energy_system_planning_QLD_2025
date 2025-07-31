@@ -163,7 +163,3 @@ ggsave(base_plot, filename = output_file_path, width = 10, height = 8,
 cat("Map saved to:", output_file_path, "\n")
 
 
-
-
-le_path, "\n")
-
