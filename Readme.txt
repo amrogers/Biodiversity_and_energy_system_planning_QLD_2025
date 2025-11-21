@@ -3,6 +3,12 @@
 ## Overview
 This repository contains supplementary data and analysis scripts for the study "Biodiversity and Energy System Planning in Queensland: Balancing Conservation and Infrastructure Development". The materials include energy system modeling results, conservation priority analyses, and spatial mapping tools.
 
+#Data
+Data used for this study can be found through figshare here:
+https://figshare.unimelb.edu.au/articles/dataset/Supplementary_Data_Biodiversity_and_Energy_System_Planning_-_Queensland_2025/29604590
+
+reccomended citation: Rogers, Andrew (2025). Supplementary Data: Biodiversity and Energy System Planning - Queensland 2025. The University of Melbourne. Dataset. https://doi.org/10.26188/29604590.v1
+
 ## Repository Structure
 
 ```
