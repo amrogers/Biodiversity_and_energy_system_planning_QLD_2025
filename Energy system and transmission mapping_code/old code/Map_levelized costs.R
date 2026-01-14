@@ -127,16 +127,16 @@ create_lcoe_map <- function(gdb_path, csv_folder, output_path, technology, thres
 }
 
 # Set paths
-gdb_path <- "Z:/NetZero_scenarios_outputs/QLD_v202410_onshore_tx1_02/QLD_v202410_onshore_tx1.gdb"
-csv_folder <- "Z:/NetZero_scenarios_outputs/QLD_v202410_onshore_tx1_02/model_outputs"
-output_path <- "Z:/NetZero_scenarios_outputs/QLD_v202410_onshore_tx1_02/levelized_cost_maps"
+gdb_path <- "Z:/NetZero_scenarios_outputs/QLD_v202412_eplus/QLD_v202412_eplus_tx1.gdb"
+csv_folder <- "Z:/NetZero_scenarios_outputs/QLD_v202412_eplus/model_outputs"
+output_path <- "Z:/NetZero_scenarios_outputs/QLD_v202412_eplus/levelized_cost_maps"
 
 # Create output directory if it doesn't exist
 dir.create(output_path, showWarnings = FALSE, recursive = TRUE)
 
 # Define technologies and thresholds
-technologies <- c("pv", "wind", "off")
-thresholds <- c(0, 10, 30, 50, 70)
+technologies <- c("pv", "wind") #, "off"
+thresholds <- c(BAU, 30, 50, 70)
 
 # Iterate through technologies and thresholds
 for (tech in technologies) {
@@ -199,7 +199,7 @@ message("LCOE map generation complete.")n <- mean_val - 2 * sd_val
 }
 
 # Function to save plots
-save_maps_with_boundary <- function(results, base_path = "Z:/NetZero_scenarios_outputs/QLD_v202410_onshore_tx1_02") {
+save_maps_with_boundary <- function(results, base_path = "Z:/NetZero_scenarios_outputs/QLD_v202412_eplus") {
   # Construct full output path
   output_dir <- file.path(base_path, "output_maps")
   
