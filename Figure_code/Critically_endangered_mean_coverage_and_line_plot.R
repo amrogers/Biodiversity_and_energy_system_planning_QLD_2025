@@ -9,7 +9,7 @@
 
 # Load required libraries
 if (!require(pacman)) install.packages("pacman")
-pacman::p_load(dplyr, readr, here, magick)
+pacman::p_load(dplyr, readr, ggplot2, scales, here, magick)
 
 # --- USER CONTROL SETTINGS ---
 overwrite_mode <- FALSE 
@@ -25,6 +25,7 @@ curves_file   <- file.path(zonation_base, "feature_curves.csv")
 
 output_dir    <- here("results", "tables")
 output_file   <- file.path(output_dir, "CE_EN_mean_coverage_results.csv")
+output_plot   <- file.path(here("results", "figures"), "CE_EN_mean_coverage_plot.png")
 
 # Ensure output directory exists
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
@@ -110,5 +111,50 @@ if (file.exists(output_file) && !overwrite_mode) {
   cat("✓ Results saved to:", output_file, "\n")
   print(results)
 }
+
+# =============================================================================
+# Visualization
+# =============================================================================
+
+# Ensure figures output dir exists
+if (!dir.exists(here("results", "figures"))) dir.create(here("results", "figures"), recursive = TRUE)
+
+# Reshape results into long format for ggplot
+plot_data <- bind_rows(
+  results %>% transmute(actual_rank,
+                        mean     = mean_coverage_CE,
+                        ci_lower = ci_lower_CE,
+                        ci_upper = ci_upper_CE,
+                        group    = "Critically Endangered"),
+  results %>% transmute(actual_rank,
+                        mean     = mean_coverage_EN,
+                        ci_lower = ci_lower_EN,
+                        ci_upper = ci_upper_EN,
+                        group    = "Endangered")
+)
+
+coverage_plot <- ggplot(plot_data, aes(x = actual_rank, y = mean, color = group, fill = group)) +
+  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper), alpha = 0.2, color = NA) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  scale_x_continuous(labels = percent_format(accuracy = 1),
+                     name = "Proportion of Landscape Protected") +
+  scale_y_continuous(labels = percent_format(accuracy = 1),
+                     name = "Mean Proportion of Distribution Represented") +
+  scale_color_manual(values = c("Critically Endangered" = "#d73027",
+                                "Endangered"            = "#fc8d59"),
+                     name = "Threat Status") +
+  scale_fill_manual(values  = c("Critically Endangered" = "#d73027",
+                                "Endangered"            = "#fc8d59"),
+                    name = "Threat Status") +
+  theme_minimal() +
+  labs(caption = "Error bands show 95% confidence intervals") +
+  theme(axis.title   = element_text(size = 13),
+        axis.text    = element_text(size = 11),
+        legend.position = "right")
+
+ggsave(output_plot, plot = coverage_plot, width = 8, height = 6, dpi = 300, bg = "white")
+cat("✓ Plot saved to:", output_plot, "\n")
+print(coverage_plot)
 
 cat("\n=== ANALYSIS COMPLETE ===\n")

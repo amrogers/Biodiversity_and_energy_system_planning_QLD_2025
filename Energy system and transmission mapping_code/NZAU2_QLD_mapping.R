@@ -2,14 +2,15 @@
 library(sf)
 library(dplyr)
 library(ggplot2)
+library(here)
 
 # Turn off s2 processing to avoid geometry errors
 sf_use_s2(FALSE)
 
 # Set paths
-gdb_dir <- "Z:/NZAU2_BESP/data/NZAU_BESP_scenario_outputs/2025_NZAu_Spoke"
-state_shp <- "Z:/NZAU2_BESP/data/spatial/state_borders/Aus_state_borders.shp"
-output_dir <- "Z:/NZAU2_BESP/data/NZAU_BESP_scenario_outputs/summary_maps/QLD"
+gdb_dir    <- here("data", "NZAU2_scenario_outputs")
+state_shp  <- here("data", "Aus_state_borders.shp")
+output_dir <- here("results", "maps", "QLD")
 
 # Create output directory if it doesn't exist
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)

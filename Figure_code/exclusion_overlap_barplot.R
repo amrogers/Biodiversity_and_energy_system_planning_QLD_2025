@@ -2,9 +2,10 @@
 library(ggplot2)
 library(tidyr)
 library(dplyr)
+library(here)
 
 # Read the data
-data <- read.csv("C:\\Users\\andrewrogers\\OneDrive - The University of Melbourne\\Project_documents\\results\\BV_exlusion_area_overlap.csv")
+data <- read.csv(here("data", "BV_exlusion_area_overlap.csv"))
 
 # Rename first column to something meaningful
 colnames(data)[1] <- "threshold"
@@ -78,7 +79,7 @@ p <- ggplot(plot_data, aes(x = interaction(threshold, type), y = area, fill = ca
 print(p)
 
 # Optional: Save the plot
-ggsave("C:\\Users\\andrewrogers\\OneDrive - The University of Melbourne\\Project_documents\\Images\\Exclusions_stacked_bar_plot.png", 
+ggsave(here("results", "figures", "Exclusions_stacked_bar_plot.png"),
        plot = p, width = 10, height = 6, dpi = 300)
 
 # Print summary statistics

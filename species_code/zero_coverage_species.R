@@ -9,11 +9,12 @@ library(fs)
 library(ggplot2)
 library(glue) # For cleaner string formatting
 library(ggrepel) # For better label placement
+library(here)
 
 # --- Define Paths ---
-source_folder <- "C:/Users/andrewrogers/OneDrive - The University of Melbourne/Boundless_data/QLD/QLD_100m_SNES_500spp/shapefiles"
-target_folder <- "C:/Users/andrewrogers/OneDrive - The University of Melbourne/Boundless_data/QLD/zero_coverage"
-capad_path <- "C:/Users/andrewrogers/OneDrive - The University of Melbourne/Boundless_data/CAPAD_Terrestrial/CAPAD_QLD.shp"
+source_folder <- here("data", "QLD_100m_SNES_500spp", "shapefiles")
+target_folder <- here("results", "zero_coverage")
+capad_path    <- here("data", "CAPAD_QLD.shp")
 
 # --- Create Target Folder ---
 if (!dir.exists(target_folder)) {

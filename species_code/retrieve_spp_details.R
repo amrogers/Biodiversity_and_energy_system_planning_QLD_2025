@@ -2,10 +2,11 @@
 library(sf)
 library(dplyr)
 library(readr)
+library(here)
 
 # Set the directory containing the shapefiles
-shapefile_dir <- "C:/Users/andrewrogers/OneDrive - The University of Melbourne/Boundless_data/QLD/QLD_100m_SNES_500spp/shapefiles"
-output_dir <- "C:/Users/andrewrogers/OneDrive - The University of Melbourne/Boundless_data/QLD/QLD_100m_SNES_500spp"
+shapefile_dir <- here("data", "QLD_100m_SNES_500spp", "shapefiles")
+output_dir    <- here("data", "QLD_100m_SNES_500spp")
 
 # Create an empty dataframe to store the results
 species_data <- data.frame(

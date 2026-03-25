@@ -21,7 +21,7 @@
 # Load required libraries ------------------------------------------------------
 if (!require(pacman)) install.packages("pacman")
 library(pacman)
-p_load(sf, dplyr, ggplot2, ozmaps, gridExtra)
+p_load(sf, dplyr, ggplot2, ozmaps, gridExtra, here)
 
 # Global Constants -------------------------------------------------------------
 TARGET_CRS <- 4283  # GDA94 (standard Australian CRS)
@@ -599,10 +599,10 @@ main <- function() {
   cat(strrep("-", 78), "\n")
   
   config <- list(
-    gdb_path = "Z:/NetZero_scenarios_outputs/QLD_v202410_onshore_tx1_02/QLD_v202410_onshore_tx1.gdb",
-    csv_folder = "Z:/NetZero_scenarios_outputs/QLD_v202410_onshore_tx1_02/model_outputs",
-    exclusion_path = "C:/Users/andrewrogers/OneDrive - The University of Melbourne/Boundless_data/QLD/zonation_results/Zonation_exclusion_thresholds/Zonation_exclusion_thresholds.shp",
-    output_path = "C:/Users/andrewrogers/OneDrive - The University of Melbourne/Project_documents/results/supplementary data_biodiversity and energy system planning_qld_2025/Energy_system_model_outputs"
+    gdb_path       = here("data", "QLD_v202410_onshore_tx1.gdb"),
+    csv_folder     = here("data", "Energy_system_model_outputs"),
+    exclusion_path = here("data", "Zonation_exclusion_thresholds.shp"),
+    output_path    = here("results", "LCOE_analysis")
   )
   
   cat("GDB Path:", config$gdb_path, "\n")

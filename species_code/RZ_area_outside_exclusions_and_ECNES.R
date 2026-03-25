@@ -7,6 +7,7 @@ library(dplyr)
 library(units)
 library(foreach)
 library(doParallel)
+library(here)
 
 # Function to perform spatial analysis
 analyze_red_zones <- function(use_parallel = FALSE, n_cores = NULL) {
@@ -22,8 +23,8 @@ analyze_red_zones <- function(use_parallel = FALSE, n_cores = NULL) {
   }
   
   # Define file paths
-  gdb_path <- "C:/Users/andrewrogers/OneDrive - The University of Melbourne/Documents/ArcGIS/Projects/AUS_area_outside_exclusion_zones/AUS_area_outside_exclusion_zones.gdb"
-  red_zones_path <- "C:/Users/andrewrogers/OneDrive - The University of Melbourne/Boundless_data/Red_Zones/Red_zones_QLD.shp"
+  gdb_path       <- here("data", "AUS_area_outside_exclusion_zones.gdb")
+  red_zones_path <- here("data", "Red_zones_QLD.shp")
   
   # Define Queensland Albers Equal Area projection (EPSG:3577 - Australian Albers)
   # This is the most appropriate equal area projection for Australia/Queensland
@@ -121,9 +122,9 @@ analyze_red_zones <- function(use_parallel = FALSE, n_cores = NULL) {
   )
   
   # Print results
-  cat("\n" + rep("=", 60) + "\n")
+  cat(paste0("\n", strrep("=", 60), "\n"))
   cat("ANALYSIS RESULTS\n")
-  cat(rep("=", 60) + "\n")
+  cat(paste0(strrep("=", 60), "\n"))
   print(results_summary, row.names = FALSE, digits = 2)
   
   cat("\nDETAILED SUMMARY:\n")
