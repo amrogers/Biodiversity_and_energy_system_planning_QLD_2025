@@ -25,8 +25,8 @@ output_dir   <- here("results", "zonation_figures")
 
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
-# Adjust filename as per your specific Zonation output
-zonation_results_path <- file.path(zonation_dir, "250m_SNES_ECNES_red_zones_weighted_QLD", "out_example1", "results.txt")
+# Zonation 5 output: feature_curves.csv (first col = rank = fraction of landscape removed)
+zonation_results_path <- file.path(zonation_dir, "250m_SNES_ECNES_red_zones_weighted_QLD", "out_example1", "feature_curves.csv")
 final_plot_path       <- file.path(output_dir, "zonation_performance_curves.png")
 
 # =============================================================================
@@ -38,18 +38,19 @@ if (!file.exists(zonation_results_path)) {
 }
 
 cat(">>> Loading Zonation data...\n")
-curves_data <- read_table(zonation_results_path)
+curves_data <- read_csv(zonation_results_path, show_col_types = FALSE)
 
-# (Adjust column selection based on your Zonation output)
+# rank col = fraction of landscape removed (0→1); remaining cols = species IDs
+# select(1:10) keeps rank + first 9 species — adjust range as needed
 curves_clean <- curves_data %>%
   select(1:10) %>%
-  pivot_longer(-`Prop_landscape_lost`, names_to = "Feature", values_to = "Performance")
+  pivot_longer(-rank, names_to = "Feature", values_to = "Performance")
 
 # =============================================================================
 # Build Plot (always runs)
 # =============================================================================
 
-p <- ggplot(curves_clean, aes(x = 1 - Prop_landscape_lost, y = Performance, color = Feature)) +
+p <- ggplot(curves_clean, aes(x = 1 - rank, y = Performance, color = Feature)) +
   geom_line(linewidth = 1) +
   scale_x_reverse() +
   labs(
