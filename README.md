@@ -1,33 +1,32 @@
-# Supplementary Materials: Biodiversity and Energy System Planning - Queensland 2025
+Supplementary Materials: Biodiversity and Energy System Planning - Queensland 2025
+Overview
+This repository contains analysis scripts and project configurations for the study "Biodiversity and Energy System Planning in Queensland: Balancing Conservation and Infrastructure Development".
 
-## Overview
-This repository contains supplementary data and analysis scripts for the study "Biodiversity and Energy System Planning in Queensland: Balancing Conservation and Infrastructure Development". The materials include energy system modeling results, conservation priority analyses, and spatial mapping tools.
+Note on Data: Due to size constraints, the raw spatial data (approx. 7.8 GB) is hosted separately on Figshare: https://doi.org/10.26188/29604590. This repository provides the code to process that data into the final results and figures.
+
+Repository Structure
+The project is organized as an R Project. Opening the .Rproj file automatically sets the correct working directory.scripts for the study "Biodiversity and Energy System Planning in Queensland: Balancing Conservation and Infrastructure Development". The materials include energy system modeling results, conservation priority analyses, and spatial mapping tools.
+
+#Data
+Data used for this study can be found through figshare here:
+https://figshare.unimelb.edu.au/articles/dataset/Supplementary_Data_Biodiversity_and_Energy_System_Planning_-_Queensland_2025/29604590
+
+reccomended citation: Rogers, Andrew (2025). Supplementary Data: Biodiversity and Energy System Planning - Queensland 2025. The University of Melbourne. Dataset. https://doi.org/10.26188/29604590.v1
 
 ## Repository Structure
 
-```
-supplementary_data/
-├── README.txt                                    # This file
-├── Energy_system_analysis_scenarios/            # Raw energy modeling data
-│   ├── QLD_v202412_eplus_tx1.gdb.zip           # Transmission scenario 1 (3.8 GB)
-│   └── QLD_v202412_eplus_tx2.gdb.zip           # Transmission scenario 2 (3.9 GB)
-├── Energy_system_model_outputs/                 # Processed energy results
-│   ├── cost_increase_results.csv               # Cost analysis by scenario
-│   └── eplus_Domestic_NPV_2025.xlsx           # Net present value calculations
-├── Zonation_output/                            # Conservation priority analysis
-│   └── 250m_SNES_ECNES_red_zones_weighted_QLD/
-│       ├── out_example1/
-│       │   ├── feature_curves.csv              # Performance curves (17.7 MB)
-│       │   ├── feature_coverage_summary_with_CI.csv
-│       │   ├── features_info.csv
-│       │   └── [other Zonation outputs]
-│       └── [configuration files]
-├── Species_files_weights_table.xlsx            # Species weighting data
-├── Table 8_The 524 species.xls                # Species threat status
-├── Table 9_The 22 ecological communities.xlsx  # Community threat status
-├── Supplementary table_other spatial exclusions.xlsx
-└── [R analysis scripts - see below]
-```
+Biodiversity_and_energy_system_planning_2024/
+├── Biodiversity_and_energy_system_planning_2024.Rproj  # <-- Start here
+├── data/                                  # Place Figshare ZIP contents here
+│   ├── Energy_system_model_outputs/       # Processed CSV/XLSX files
+│   ├── Zonation_analysis/                 # Zonation run files and curves
+│   └── [.gdb.zip files from Figshare]     # Large spatial databases
+├── scripts/                               # R Analysis scripts
+├── results/                               # Created automatically by scripts
+│   ├── figures/                           # PNG/PDF outputs
+│   ├── tables/                            # Summary CSV outputs
+│   └── transmission_scenario_comparison/  # Spatial overlap stats
+└── README.md
 
 ## Data Files Description
 
@@ -44,6 +43,14 @@ supplementary_data/
 
 ### Spatial Exclusions
 - **Supplementary table_other spatial exclusions.xlsx**: Non-biodiversity spatial constraints
+
+###Zonation analysis
+### 1. Download and install Zonation 5: https://zonationteam.github.io/Zonation5/
+### 2. Update the features_example1.txt and minimal_settings.Z5 files. 
+	- Change the file paths: replace User_directory in the file paths to the download location. this should be in the "download_location"\Biodiversity_and_energy_system_planning_2024\data
+### 3. Unzip the Zonation_QLD_biodiversity_feature_rasters.zip file in the Zonation analysis folder
+### 4. Run the z5_example1 file. if the files paths are correct and the feature rasters are unzipped this will run the zonation analysis and overwrite the outputs in the zonation output folder. 
+
 
 ## Analysis Scripts
 
@@ -152,26 +159,26 @@ All scripts create a `figures/` directory with organized outputs:
 ### Coordinate Reference System
 All spatial data uses GDA2020 / MGA Zone 56 (EPSG:7856) coordinate reference system.
 
-### Processing Requirements
-- **RAM**: Minimum 8GB recommended (16GB for full spatial analysis)
-- **Storage**: 10GB free space for temporary files and outputs
-- **Processing time**: 
-  - Cost/NPV analyses: 1-2 minutes
-  - Zonation analysis: 2-5 minutes  
-  - Spatial mapping: 30-60 minutes per transmission scenario
+To save processing time (especially for spatial tasks that can take 60+ minutes), each script includes a "Smart Check" at the top:
 
-### Troubleshooting
+overwrite_mode <- FALSE (Default): If the output figure or table already exists in the results/ folder, the script will skip the calculation and simply display the existing file.
 
-**Common Issues**:
-1. **GDB files not found**: Ensure ZIP files are extracted in the correct location
-2. **Missing packages**: Scripts will auto-install, but manual installation may be needed
-3. **Path errors**: Ensure working directory is set to supplementary data folder
+overwrite_mode <- TRUE: Force the script to re-run all calculations and overwrite existing files.
 
+📦 Package Management
+The scripts use the pacman manager. Missing libraries (e.g., sf, here, ggpattern) will be installed automatically on your first run.
 
-## Version History
-- v1.0: Initial release with peer review materials
-- [Future versions as needed]
+🗺️ Spatial Metadata
+CRS: GDA2020 / MGA Zone 56 (EPSG:7856).
 
----
-Last updated: [Date]
-Repository DOI: [DOI if applicable]
+Version History
+v1.1 (Jan 2026): Updated to full R Project structure; implemented here for relative pathing; added automated unzipping logic and LLM-assisted code optimization.
+
+v1.0 (2025): Initial release for peer review.
+
+Author: Andrew Rogers
+
+LLMs used: Claude AI and Gemini
+
+Last Updated: January 2026
+
