@@ -2,7 +2,12 @@
 library(here)
 
 # 1. Base Data Folder (Where the unzipped Figshare data lives)
-data_root <- here("data")
+# Looks for a non-empty "data/" first, then the full Figshare folder name
+if (dir.exists(here("data")) && length(list.files(here("data"))) > 0) {
+  data_root <- here("data")
+} else {
+  data_root <- here("supplementary data_biodiversity and energy system planning_qld_2025")
+}
 
 # 2. Specific Data Anchors (Based on your folder map)
 paths <- list(

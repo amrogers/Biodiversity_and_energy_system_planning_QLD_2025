@@ -9,17 +9,18 @@
 
 # Load required libraries
 if (!require(pacman)) install.packages("pacman")
-pacman::p_load(dplyr, readr, ggplot2, scales, here, magick)
+pacman::p_load(dplyr, readr, ggplot2, scales, here)
+source(here::here("_paths.R"))
 
 # --- USER CONTROL SETTINGS ---
-overwrite_mode <- FALSE 
+overwrite_mode <- FALSE
 
 # =============================================================================
 # Setup and Path Configuration
 # =============================================================================
 
-# Define standardized paths using here()
-zonation_base <- here("data", "Zonation_analysis", "Zonation_output", "250m_SNES_ECNES_red_zones_weighted_QLD", "out_example1")
+# Define standardized paths
+zonation_base <- file.path(data_root, "Zonation_analysis", "Zonation_output", "250m_SNES_ECNES_red_zones_weighted_QLD", "out_example1")
 weights_file  <- file.path(zonation_base, "species_weights.csv")
 curves_file   <- file.path(zonation_base, "feature_curves.csv")
 

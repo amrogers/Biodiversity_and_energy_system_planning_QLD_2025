@@ -44,7 +44,7 @@ for (i in seq_along(pipeline)) {
       source(step_path)
       results_log$Status[i] <- "Success ✅"
     }, error = function(e) {
-      results_log$Status[i] <- paste("Failed ❌:", e$message)
+      results_log$Status[i] <<- paste("Failed ❌:", e$message)
     })
   } else {
     results_log$Status[i] <- "File Not Found ❌"
