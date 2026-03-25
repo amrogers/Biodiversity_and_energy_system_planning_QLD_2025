@@ -18,7 +18,7 @@ start_time <- Sys.time()
 # 2. DEFINE PIPELINE STEPS
 # We order these so that data processing happens before complex mapping
 pipeline <- list(
-  "Species Coverage" = here("species_code", "critically_endangered_coverage.R"),
+  "Species Coverage" = here("Figure_code", "Critically_endangered_mean_coverage_and_line_plot.R"),
   "Zonation Curves"  = here("Figure_code", "Zonation curves.R"),
   "Cost Analysis"    = here("Figure_code", "percent cost increase_line plot.R"),
   "NPV Analysis"     = here("Figure_code", "NPV_bar_plot.R"),
@@ -53,12 +53,12 @@ for (i in seq_along(pipeline)) {
 }
 
 # 4. FINAL STATUS REPORT
-cat("\n" , "="*40, "\n")
+cat("\n" , strrep("=", 40), "\n")
 cat("FINAL PIPELINE REPORT\n")
-cat("="*40, "\n")
+cat(strrep("=", 40), "\n")
 print(results_log, row.names = FALSE)
 
 end_time <- Sys.time()
 cat(sprintf("\nTotal Runtime: %0.2f minutes\n", as.numeric(difftime(end_time, start_time, units="mins"))))
 cat("All outputs are available in the /results folder.\n")
-cat("="*40, "\n")
+cat(strrep("=", 40), "\n")
