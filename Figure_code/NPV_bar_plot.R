@@ -9,7 +9,7 @@
 # Load required libraries
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(ggplot2, readxl, tidyr, dplyr, ggpattern, forcats, cowplot,
-               grid, gridExtra, here)
+               grid, gridExtra, here, scales)
 source(here::here("_paths.R"))
 
 # --- USER CONTROL SETTINGS ---
@@ -22,7 +22,6 @@ overwrite_mode <- FALSE
 data_dir        <- file.path(data_root, "Energy_system_model_outputs")
 output_dir      <- here("results", "figures")
 npv_file        <- file.path(data_dir, "eplus_Domestic_NPV_2025.xlsx")
-percent_file    <- file.path(data_root, "Build percent_build_vs_trans.xlsx")
 output_filename <- file.path(output_dir, "npv_analysis_plot.png")
 
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
@@ -33,72 +32,63 @@ if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
 if (!file.exists(npv_file)) {
   stop("Error: NPV data file not found at: ", npv_file,
-       "\nPlease ensure the Figshare data is in the /data folder.")
+       "\nPlease ensure the data file is in the correct folder.")
 }
 
 cat(">>> Loading NPV data...\n")
-npv_data <- read_excel(npv_file, col_types = c("text", "text", "numeric", "numeric", "numeric"))
 
+# File has 6 columns: scenario, thresholds, 2030, 2040, 2050, percent_increase
+npv_data <- read_excel(npv_file, col_types = c("text", "text", "numeric", "numeric", "numeric", "numeric"))
+
+cat(">>> Columns found:", paste(names(npv_data), collapse = ", "), "\n")
+cat(">>> Rows found:", nrow(npv_data), "\n")
+
+# Pivot year columns to long format; keep percent_increase as a separate column
 npv_long <- npv_data %>%
-  pivot_longer(cols = c(`2030`, `2040`, `2050`), names_to = "year", values_to = "npv_value") %>%
-  rename(scenario = 1, thresholds = 2) %>%
+  rename(scenario = 1, thresholds = 2, percent_increase = 6) %>%
+  pivot_longer(
+    cols      = c(`2030`, `2040`, `2050`),
+    names_to  = "year",
+    values_to = "npv_value"
+  ) %>%
   filter(thresholds != "0.1") %>%
-  mutate(thresholds = factor(thresholds, levels = c("BAU", "0.3", "0.5", "0.7", "0.9")))
+  mutate(
+    thresholds = factor(thresholds, levels = c("BAU", "0.3", "0.5", "0.7", "0.9")),
+    year       = factor(year, levels = c("2030", "2040", "2050")),
+    scenario   = factor(scenario)
+  )
 
-if (file.exists(percent_file)) {
-  cat(">>> Loading build percentage data...\n")
-  percent_data <- read_excel(percent_file, col_types = c("text", "text", "numeric", "numeric", "numeric"))
-
-  percent_long <- percent_data %>%
-    pivot_longer(cols = c(`2030`, `2040`, `2050`), names_to = "year", values_to = "build_percent") %>%
-    rename(scenario = 1, thresholds = 2) %>%
-    filter(thresholds != "0.1")
-
-  combined_data <- npv_long %>%
-    left_join(percent_long, by = c("scenario", "thresholds", "year")) %>%
-    mutate(
-      build_value = npv_value * (build_percent / 100),
-      thresholds  = factor(thresholds, levels = c("BAU", "0.3", "0.5", "0.7", "0.9"))
-    )
-  use_build_data <- TRUE
-} else {
-  cat("Warning: Build percentage data file not found. Plotting NPV only.\n")
-  combined_data  <- npv_long
-  use_build_data <- FALSE
-}
+cat(">>> Data processed:", nrow(npv_long), "rows after pivoting.\n")
 
 # =============================================================================
 # Build Plot (always runs)
 # =============================================================================
 
 cat(">>> Building NPV plot...\n")
-p <- ggplot(combined_data, aes(x = factor(year)))
 
-if (use_build_data) {
-  p <- p +
-    geom_col_pattern(aes(y = npv_value, fill = thresholds),
-                     pattern = "none", colour = "black",
-                     position = position_dodge(width = 0.9), width = 0.8) +
-    geom_col_pattern(aes(y = build_value, fill = thresholds),
-                     pattern = "stripe", pattern_fill = "black",
-                     pattern_angle = 45, pattern_density = 0.1, pattern_spacing = 0.025,
-                     colour = "black", position = position_dodge(width = 0.9), width = 0.8)
-} else {
-  p <- p + geom_col(aes(y = npv_value, fill = thresholds), colour = "black",
-                    position = position_dodge(width = 0.9), width = 0.8)
-}
-
-final_plot <- p +
-  facet_wrap(~scenario, scales = "free_y") +
-  theme_minimal() +
+final_plot <- ggplot(npv_long, aes(x = year, y = npv_value, fill = thresholds)) +
+  geom_col(
+    colour   = "black",
+    position = position_dodge(width = 0.9),
+    width    = 0.8
+  ) +
+  facet_wrap(~scenario, scales = "free_y", labeller = label_both) +
+  scale_fill_brewer(palette = "RdYlBu", direction = -1) +
+  scale_y_continuous(labels = label_comma()) +
   labs(
+    title   = "Net Present Value of Energy Infrastructure Investments",
     x       = "Year",
     y       = "NPV (billion AUD)",
-    fill    = "Protection Threshold",
-    title   = "Net Present Value of Energy Infrastructure Investments",
-    caption = "Source: Energy system modeling results"
+    fill    = "Avoidance\nThreshold",
+    caption = paste("Source:", basename(npv_file))
   ) +
-  scale_fill_brewer(palette = "RdYlBu", direction = -1)
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title       = element_text(face = "bold"),
+    plot.caption     = element_text(colour = "grey60", size = 8),
+    panel.grid.minor = element_blank(),
+    strip.text       = element_text(face = "bold")
+  )
 
 # =============================================================================
 # Save (only if needed) and Display (always)
@@ -107,8 +97,9 @@ final_plot <- p +
 if (!file.exists(output_filename) || overwrite_mode) {
   ggsave(output_filename, plot = final_plot, width = 14, height = 8, dpi = 300, bg = "white")
   summary_filename <- file.path(output_dir, "npv_summary_data.csv")
-  write.csv(combined_data, summary_filename, row.names = FALSE)
-  cat("✓ NPV plot and summary saved to:", output_dir, "\n")
+  write.csv(npv_long, summary_filename, row.names = FALSE)
+  cat("✓ NPV plot saved to:", output_filename, "\n")
+  cat("✓ Summary CSV saved to:", summary_filename, "\n")
 } else {
   cat(">>> Plot already exists (set overwrite_mode = TRUE to regenerate).\n")
 }

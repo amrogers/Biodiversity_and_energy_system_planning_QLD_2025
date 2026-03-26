@@ -1,64 +1,135 @@
 # =============================================================================
 # MASTER RUNNER: Biodiversity and Energy System Planning QLD 2025
 # =============================================================================
-# Author: Andrew Rogers 
+# Author: Andrew Rogers
 # LLMs used: Claude AI and Gemini
-# Date: Jan 2026
+# Date: Jan 2026; Updated: Mar 2026
 # =============================================================================
-# Purpose: This script executes the full analysis pipeline in the correct order.
+# Purpose: Executes the full analysis pipeline in two independent steps.
+#
+#   Step 1 — Main manuscript figures and tables:
+#     Figure 1  — Maps produced in ArcGIS Pro (location printed to console)
+#     Table 1   — All-MNES scenario coverage (Mean_spp_scenario_coverage.R)
+#     Table 1   — CE/EN coverage line plot (Critically_endangered_mean_coverage...)
+#     Figure 2  — NPV bar chart (NPV_bar_plot.R)
+#     Figure 4  — Cost increase line plot (percent cost increase_line plot.R)
+#
+#   Step 2 — Supplementary material figures:
+#     Supp. Fig 1D — Zonation performance curves (Zonation curves.R)
+#     Supp. Fig 2  — Zero-coverage species map (zero_coverage_species.R)
+#     Supp. Fig 6  — Exclusion area barplot (exclusion_overlap_barplot.R)
+#
+#   NOTE: Figure 3 (transmission length) has no R generation script identified.
+#   Set run_step1 / run_step2 to TRUE/FALSE to run steps independently.
 # =============================================================================
 
 # 1. INITIAL SETUP
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(here, magick)
 
-cat("\n🚀 Starting Full Analysis Pipeline...\n")
+# --- USER CONTROL: Set which steps to run ---
+run_step1 <- TRUE   # Paper figures
+run_step2 <- TRUE   # Land-use maps and barplots
+
+cat("\n Starting Full Analysis Pipeline...\n")
 start_time <- Sys.time()
 
+# =============================================================================
 # 2. DEFINE PIPELINE STEPS
-# We order these so that data processing happens before complex mapping
-pipeline <- list(
-  "Species Coverage" = here("Figure_code", "Critically_endangered_mean_coverage_and_line_plot.R"),
-  "Zonation Curves"  = here("Figure_code", "Zonation curves.R"),
-  "Cost Analysis"    = here("Figure_code", "percent cost increase_line plot.R"),
-  "NPV Analysis"     = here("Figure_code", "NPV_bar_plot.R"),
-  "Spatial Mapping"  = here("Figure_code", "2050_domestic_CPA_comparison.R")
+# =============================================================================
+
+# Step 1: main manuscript figures/tables
+pipeline_step1 <- list(
+  "Table 1 (all MNES)"   = here("species_code", "Mean_spp_scenario_coverage.R"),
+  "Table 1 (CE/EN plot)" = here("Figure_code", "Critically_endangered_mean_coverage_and_line_plot.R"),
+  "Figure 2 (NPV)"       = here("Figure_code", "NPV_bar_plot.R"),
+  "Figure 4 (costs)"     = here("Figure_code", "percent cost increase_line plot.R")
 )
 
+# Step 2: supplementary figures
+pipeline_step2 <- list(
+  "Supp. Fig 1D (Zonation curves)"    = here("Figure_code", "Zonation curves.R"),
+  "Supp. Fig 2 (zero-coverage spp.)"  = here("species_code", "zero_coverage_species.R"),
+  "Supp. Fig 6 (exclusion barplot)"   = here("Figure_code", "exclusion_overlap_barplot.R")
+)
+
+# =============================================================================
 # 3. EXECUTION ENGINE
-results_log <- data.frame(
-  Step = names(pipeline),
-  Status = "Pending",
-  Time = NA,
-  stringsAsFactors = FALSE
-)
+# =============================================================================
 
-for (i in seq_along(pipeline)) {
-  step_name <- names(pipeline)[i]
-  step_path <- pipeline[[i]]
-  
-  cat(sprintf("\n--- Running Step %d/%d: %s ---\n", i, length(pipeline), step_name))
-  
-  if (file.exists(step_path)) {
-    tryCatch({
-      source(step_path)
-      results_log$Status[i] <- "Success ✅"
-    }, error = function(e) {
-      results_log$Status[i] <<- paste("Failed ❌:", e$message)
-    })
-  } else {
-    results_log$Status[i] <- "File Not Found ❌"
+run_pipeline <- function(pipeline, step_label) {
+  log <- data.frame(
+    Step   = names(pipeline),
+    Status = "Pending",
+    Time   = NA_character_,
+    stringsAsFactors = FALSE
+  )
+  for (i in seq_along(pipeline)) {
+    step_name <- names(pipeline)[i]
+    step_path <- pipeline[[i]]
+    cat(sprintf("\n--- %s: %s ---\n", step_label, step_name))
+    if (file.exists(step_path)) {
+      tryCatch({
+        source(step_path)
+        log$Status[i] <- "Success \u2705"
+      }, error = function(e) {
+        log$Status[i] <<- paste("Failed \u274c:", e$message)
+      })
+    } else {
+      log$Status[i] <- "File Not Found \u274c"
+    }
+    log$Time[i] <- format(Sys.time(), "%H:%M:%S")
   }
-  results_log$Time[i] <- format(Sys.time(), "%H:%M:%S")
+  log
 }
 
+all_logs <- list()
+
+if (run_step1) {
+  cat("\n", strrep("=", 50), "\n")
+  cat("STEP 1: Main Manuscript Figures & Tables\n")
+  cat(strrep("=", 50), "\n")
+
+  # Figure 1 — produced in ArcGIS Pro; no R script
+  cat("\n--- Step 1: Figure 1 (Maps) ---\n")
+  cat("  NOTE: Figure 1 maps were produced in ArcGIS Pro and are not\n")
+  cat("  generated by this pipeline. Map files can be found at:\n")
+  cat("  ", here("results", "figures"), "\n")
+  cat("  Status: Skipped (ArcGIS Pro output) \u2139\ufe0f\n")
+
+  all_logs[["Step 1: Main Manuscript Figures & Tables"]] <- run_pipeline(pipeline_step1, "Step 1")
+}
+
+if (run_step2) {
+  cat("\n", strrep("=", 50), "\n")
+  cat("STEP 2: Supplementary Material Figures\n")
+  cat(strrep("=", 50), "\n")
+  all_logs[["Step 2: Supplementary Figures"]] <- run_pipeline(pipeline_step2, "Step 2")
+}
+
+# =============================================================================
 # 4. FINAL STATUS REPORT
-cat("\n" , strrep("=", 40), "\n")
+# =============================================================================
+
+cat("\n", strrep("=", 50), "\n")
 cat("FINAL PIPELINE REPORT\n")
-cat(strrep("=", 40), "\n")
-print(results_log, row.names = FALSE)
+cat(strrep("=", 50), "\n")
+
+for (label in names(all_logs)) {
+  cat(sprintf("\n%s\n", label))
+  print(all_logs[[label]], row.names = FALSE)
+}
 
 end_time <- Sys.time()
-cat(sprintf("\nTotal Runtime: %0.2f minutes\n", as.numeric(difftime(end_time, start_time, units="mins"))))
+cat(sprintf("\nTotal Runtime: %0.2f minutes\n",
+            as.numeric(difftime(end_time, start_time, units = "mins"))))
 cat("All outputs are available in the /results folder.\n")
-cat(strrep("=", 40), "\n")
+cat(strrep("=", 50), "\n")
+
+# =============================================================================
+# 5. SESSION INFO (for reproducibility)
+# =============================================================================
+
+cat("\nSESSION INFO\n")
+cat(strrep("=", 50), "\n")
+print(sessionInfo())

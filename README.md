@@ -54,7 +54,20 @@ Biodiversity_and_energy_system_planning_2024/
 
 ## Analysis Scripts
 
-### 1. Cost Analysis (`percent cost increase_line plot.R`)
+### 1. Species Coverage — All MNES (`species_code/Mean_spp_scenario_coverage.R`)
+**Purpose**: Calculates mean (+ 95% CI), min, and max distribution coverage across **all** MNES (species and ecological communities in `feature_curves.csv`) at each biodiversity protection scenario threshold. Produces the primary data for Table 1 in the main manuscript.
+
+**Input**: `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/out_example1/feature_curves.csv`
+**Output**: `results/tables/scenario_coverage_results.csv`
+
+**Scenarios**: BAU (14% of Qld), Top 30%, Top 50%, Top 70%, Top 90%
+
+**Usage**:
+```r
+source("species_code/Mean_spp_scenario_coverage.R")
+```
+
+### 2. Cost Analysis (`percent cost increase_line plot.R`)
 **Purpose**: Analyzes and visualizes energy cost increases under different High Biodiversity Value Area (HBVA) exclusion scenarios.
 
 **Input**: `Energy_system_model_outputs/cost_increase_results.csv`
@@ -132,11 +145,16 @@ Required R packages (automatically installed by scripts):
 
 3. **Run Analysis Scripts**:
    ```r
-   # Run individual scripts or all analyses
-   source("percent cost increase_line plot.R")
-   source("Zonation curves.R") 
-   source("NPV_bar_plot.R")
-   source("domestic_export_map_iterations.R")
+   # Recommended: run the full pipeline via the master runner
+   source("_RUN_ALL.R")
+
+   # Or run individual scripts:
+   source("species_code/Mean_spp_scenario_coverage.R")   # Table 1 — all MNES coverage
+   source("Figure_code/Critically_endangered_mean_coverage_and_line_plot.R")  # Table 1 CE/EN + plot
+   source("Figure_code/Zonation curves.R")
+   source("Figure_code/percent cost increase_line plot.R")
+   source("Figure_code/NPV_bar_plot.R")
+   source("Figure_code/domestic_export_map_iterations.R")
    ```
 
 ### Expected Outputs
@@ -180,5 +198,5 @@ Author: Andrew Rogers
 
 LLMs used: Claude AI and Gemini
 
-Last Updated: January 2026
+Last Updated: March 2026
 

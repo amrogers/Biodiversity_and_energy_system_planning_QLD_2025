@@ -3,6 +3,13 @@
 .RData
 .Ruserdata
 
+# Data folder (hosted on Figshare — not committed to repo)
+BESP_data_qld_2025/
+data/
+
+# Generated outputs
+results/
+
 supplementary data_biodiversity and energy system planning_qld_2025/
 
 Energy system and transmission mapping_code/old code/

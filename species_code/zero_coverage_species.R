@@ -10,11 +10,12 @@ library(ggplot2)
 library(glue) # For cleaner string formatting
 library(ggrepel) # For better label placement
 library(here)
+source(here::here("_paths.R"))
 
 # --- Define Paths ---
-source_folder <- here("data", "QLD_100m_SNES_500spp", "shapefiles")
+source_folder <- file.path(paths$zonation_raw, "Zonation_MNES_shapefiles")
 target_folder <- here("results", "zero_coverage")
-capad_path    <- here("data", "CAPAD_QLD.shp")
+capad_path    <- file.path(paths$zonation_raw, "QLD_CAPAD", "CAPAD_QLD.shp")
 
 # --- Create Target Folder ---
 if (!dir.exists(target_folder)) {

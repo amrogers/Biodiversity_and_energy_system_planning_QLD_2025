@@ -20,7 +20,7 @@ overwrite_mode <- FALSE
 # =============================================================================
 
 # Define standardized paths
-zonation_base <- file.path(data_root, "Zonation_analysis", "Zonation_output", "250m_SNES_ECNES_red_zones_weighted_QLD", "out_example1")
+zonation_base <- file.path(data_root, "Zonation_analysis", "Zonation_output", "250m_QLD_2024", "out_example1")
 weights_file  <- file.path(zonation_base, "species_weights.csv")
 curves_file   <- file.path(zonation_base, "feature_curves.csv")
 

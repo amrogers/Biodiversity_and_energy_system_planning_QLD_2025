@@ -3,9 +3,10 @@ library(ggplot2)
 library(tidyr)
 library(dplyr)
 library(here)
+source(here::here("_paths.R"))
 
 # Read the data
-data <- read.csv(here("data", "BV_exlusion_area_overlap.csv"))
+data <- read.csv(file.path(data_root, "Energy_system_model_outputs", "BV_exclusion_area_overlap.csv"))
 
 # Rename first column to something meaningful
 colnames(data)[1] <- "threshold"

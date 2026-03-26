@@ -6,7 +6,7 @@ library(here)
 if (dir.exists(here("data")) && length(list.files(here("data"))) > 0) {
   data_root <- here("data")
 } else {
-  data_root <- here("supplementary data_biodiversity and energy system planning_qld_2025")
+  data_root <- here("BESP_data_qld_2025")
 }
 
 # 2. Specific Data Anchors (Based on your folder map)
