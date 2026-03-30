@@ -92,30 +92,34 @@ source("percent cost increase_line plot.R")
 source("Zonation curves.R")
 ```
 
-### 3. Economic Analysis (`NPV_bar_plot.R`)
-**Purpose**: Creates bar plots showing Net Present Value of energy investments with build components.
+### 3. Economic Analysis (`Figure_code/NPV_bar_plot.R`)
+**Purpose**: Creates Figure 2 — stacked bar plots showing Net Present Value of VRE and transmission infrastructure investments by year (2030/2040/2050) and biodiversity avoidance threshold, faceted by TX scenario.
 
-**Input**: `Energy_system_model_outputs/eplus_Domestic_NPV_2025.xlsx`
-**Output**: `figures/npv_analysis_plot.png`
+**Input**: `BESP_data_qld_2025/Energy_system_model_outputs/eplus_Domestic_NPV_figure.csv`
+**Output**: `results/figures/npv_analysis_plot.png`
+
+**Note**: `eplus_Domestic_NPV_2025.xlsx` contains the full dataset; `eplus_Domestic_NPV_figure.csv` is the processed version used directly by this script.
 
 **Usage**:
 ```r
-source("NPV_bar_plot.R")
+source("Figure_code/NPV_bar_plot.R")
 ```
 
-### 4. Spatial Mapping (`domestic_export_map_iterations.R`)
-**Purpose**: Creates detailed spatial maps of renewable energy infrastructure for domestic and export scenarios.
+### 4. Spatial Mapping — Figure 1b–e (`Energy system and transmission mapping_code/domestic_export_map_iterations.R`)
+**Purpose**: Generates Figure 1b–e — cost-optimised VRE siting maps for BAU and biodiversity protection scenarios (Top 30/50/70%). Processes TX1/TX2 GDB files across thresholds (0/10/30/50/70/90%) and years (2030/2040/2050), producing shapefiles and PNG maps.
 
-**Input**: Extracted GDB files from `Energy_system_analysis_scenarios/`
-**Outputs**: 
-- `figures/energy_maps/domestic_maps_tx1/domestic_layer_map_[threshold]_[year].png`
-- `figures/energy_maps/export_maps_tx1/export_layer_map_[threshold]_[year].png`
-- Processed shapefiles and summary statistics
+**Note**: Figure 1a (biodiversity prioritisation map) was produced in ArcGIS Pro using the Zonation output raster as its source. The source file is `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/out_example1/rankmap.tif` (accessible via `paths$rankmap` in `_paths.R`).
+
+**Input**: `BESP_data_qld_2025/Energy_system_model_outputs/Energy_system_analysis_scenarios/QLD_v202412_eplus_tx1/tx2.gdb` (unzip from `.gdb.zip` first)
+**Outputs**:
+- `results/figures/energy_maps/shapefiles_tx1/combined_renewables_2050_threshold_N.shp`
+- `results/figures/energy_maps/domestic_maps_tx1/domestic_layer_map_[threshold]_[year].png`
+- `results/figures/energy_maps/export_maps_tx1/export_layer_map_[threshold]_[year].png`
 
 **Usage**:
 ```r
-# First extract GDB files from ZIP archives
-source("domestic_export_map_iterations.R")
+# Ensure GDB files are unzipped before running
+source("Energy system and transmission mapping_code/domestic_export_map_iterations.R")
 ```
 
 ## Getting Started
@@ -154,7 +158,7 @@ Required R packages (automatically installed by scripts):
    source("Figure_code/Zonation curves.R")
    source("Figure_code/percent cost increase_line plot.R")
    source("Figure_code/NPV_bar_plot.R")
-   source("Figure_code/domestic_export_map_iterations.R")
+   source("Energy system and transmission mapping_code/domestic_export_map_iterations.R")  # Figure 1b-e
    ```
 
 ### Expected Outputs
