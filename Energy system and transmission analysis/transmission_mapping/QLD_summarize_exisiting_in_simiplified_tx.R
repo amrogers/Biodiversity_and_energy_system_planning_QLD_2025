@@ -27,6 +27,11 @@
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(sf, future.apply, dplyr, here)
 source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # NOTE: `simplified_tx` must be loaded before running this script, e.g.:
 #   simplified_tx <- sf::st_read("path/to/simplified_corridor.shp")

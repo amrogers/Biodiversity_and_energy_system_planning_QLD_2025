@@ -18,9 +18,14 @@
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(ggplot2, readr, tidyr, dplyr, ggpattern, scales, RColorBrewer, here)
 source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # --- USER CONTROL ---
-overwrite_mode <- FALSE
+overwrite_mode <- TRUE
 
 # =============================================================================
 # 1. Path Configuration
@@ -48,7 +53,8 @@ cat(">>> Loading NPV data...\n")
 npv_data <- read_csv(npv_file, show_col_types = FALSE)
 
 npv_long <- npv_data %>%
-  rename(scenario = TX_scenario, thresholds = BV_protection_scenario) %>%
+  rename(scenario = TX_scenario, thresholds = BV_avoidance_scenario) %>%
+  filter(!is.na(scenario)) %>%
   select(scenario, thresholds, starts_with("VRE_"), starts_with("TX_")) %>%
   pivot_longer(
     cols      = -c(scenario, thresholds),
@@ -57,10 +63,11 @@ npv_long <- npv_data %>%
     values_to = "npv_value"
   ) %>%
   mutate(
-    thresholds = factor(thresholds, levels = c("BAU", "0.3", "0.5", "0.7", "0.9")),
+    thresholds = factor(thresholds, levels = c("BAU", "0.3", "0.5", "0.7", "0.9"),
+                        labels = c("BAU", "30%", "50%", "70%", "90%")),
     year       = factor(year, levels = c("2030", "2040", "2050")),
     scenario   = factor(scenario, levels = c("tx1", "tx2"),
-                        labels = c("TX Scenario 1", "TX Scenario 2")),
+                        labels = c("TX1 (Reference cost)", "TX2 (Doubled TX cost)")),
     component  = factor(component, levels = c("VRE", "TX"))  # VRE bottom, TX top
   )
 
@@ -72,7 +79,7 @@ n_thresh  <- 5
 bar_width <- 0.12
 gap       <- 0.02
 
-thresh_levels  <- c("BAU", "0.3", "0.5", "0.7", "0.9")
+thresh_levels  <- c("BAU", "30%", "50%", "70%", "90%")
 thresh_offsets <- seq(
   from       = -((n_thresh - 1) / 2) * (bar_width + gap),
   by         = bar_width + gap,
@@ -100,7 +107,7 @@ npv_rect <- npv_long %>%
 # =============================================================================
 
 tx2_max <- npv_rect %>%
-  filter(scenario == "TX Scenario 2") %>%
+  filter(scenario == "TX2 (Doubled TX cost)") %>%
   summarise(max_y = max(ymax)) %>%
   pull(max_y)
 
@@ -110,11 +117,22 @@ cat(">>> Y-axis upper limit set to:", y_upper, "\n")
 # =============================================================================
 # 5. Colour Palette
 # =============================================================================
+# =============================================================================
+# 5. Colour Palette
+# =============================================================================
 
-threshold_colours <- setNames(
-  brewer.pal(5, "RdYlBu")[5:1],
-  thresh_levels
+threshold_colours <- c(
+  "BAU"  = "#ac0505",
+  "30%"  = "#2887a1",
+  "50%"  = "#85adaf",
+  "70%"  = "#cbd5bc",
+  "90%"  = "#e0cfa2"
 )
+
+# threshold_colours <- setNames(
+#   brewer.pal(5, "PuOr"),
+#   thresh_levels
+# )
 
 # =============================================================================
 # 6. Build Plot
@@ -137,19 +155,20 @@ final_plot <- ggplot(npv_rect) +
     pattern_fill             = "black",
     pattern_colour           = "black",
     pattern_angle            = 45,
-    pattern_density          = 0.1,
-    pattern_spacing          = 0.025,
-    pattern_key_scale_factor = 0.6
+    pattern_density          = 0.05,
+    pattern_spacing          = 0.03,
+    pattern_size             = 0.3,
+    pattern_key_scale_factor = 0.7
   ) +
   facet_wrap(~scenario) +
   scale_fill_manual(
     values = threshold_colours,
-    name   = "Avoidance\nThreshold"
+    name   = "Biodiversity\nprotection\nscenario"
   ) +
   scale_pattern_manual(
     values = c(VRE = "stripe", TX = "none"),
     name   = "Component",
-    labels = c(VRE = "VRE", TX = "Transmission (TX)")
+    labels = c(VRE = "VRE", TX = "Transmission")
   ) +
   scale_x_continuous(
     breaks = c(1, 2, 3),
@@ -164,7 +183,7 @@ final_plot <- ggplot(npv_rect) +
   labs(
     x       = "Year",
     y       = "NPV (billion AUD)",
-    caption = paste("Source:", basename(npv_file))
+    #caption = paste("Source:", basename(npv_file))
   ) +
   theme_minimal(base_size = 12) +
   theme(
@@ -183,7 +202,7 @@ final_plot <- ggplot(npv_rect) +
 # =============================================================================
 
 if (!file.exists(output_filename) || overwrite_mode) {
-  ggsave(output_filename, plot = final_plot, width = 16, height = 8, dpi = 300, bg = "white")
+  ggsave(output_filename, plot = final_plot, width = 180, height = 90, units = "mm", dpi = 300, bg = "white")
   cat("✓ Plot saved to:", output_filename, "\n")
 } else {
   cat(">>> Plot already exists (set overwrite_mode = TRUE to regenerate).\n")

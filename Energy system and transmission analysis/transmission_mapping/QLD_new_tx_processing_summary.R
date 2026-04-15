@@ -37,12 +37,17 @@
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(sf, dplyr, stringr, here)
 source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # --- USER CONTROL ---
-tx_scenario    <- "tx1"    # "tx1" or "tx2"
-thresholds     <- c(0, 10, 30, 50, 70, 90)
-projected_crs  <- 7856     # GDA2020 MGA Zone 56
-overwrite_mode <- FALSE
+if (!exists("tx_scenario"))    tx_scenario    <- "tx1"    # "tx1" or "tx2"
+if (!exists("overwrite_mode")) overwrite_mode <- FALSE
+thresholds    <- c(0, 10, 30, 50, 70, 90)
+projected_crs <- 7856     # GDA2020 MGA Zone 56
 
 # =============================================================================
 # 1. Path Configuration

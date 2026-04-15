@@ -1,7 +1,11 @@
 .Rproj.user
 .Rhistory
 .RData
+.RDataTmp*
 .Ruserdata
+
+# Local path overrides — machine-specific, never commit
+_paths_local.R
 
 # Data folder (hosted on Figshare — not committed to repo)
 BESP_data_qld_2025/
@@ -13,3 +17,6 @@ results/
 supplementary data_biodiversity and energy system planning_qld_2025/
 
 Energy system and transmission mapping_code/old code/
+
+# Katherine edit files — reviewer edits, not committed
+*_katherine_edit*

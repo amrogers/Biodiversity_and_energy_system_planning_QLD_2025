@@ -25,11 +25,16 @@
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(readxl, dplyr, writexl, here)
 source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # --- USER CONTROL ---
-scenarios      <- c("tx1", "tx2")   # process one or both scenarios
-thresholds     <- c(0, 10, 30, 50, 70, 90)
-overwrite_mode <- FALSE
+if (!exists("overwrite_mode")) overwrite_mode <- FALSE
+scenarios  <- c("tx1", "tx2")   # process one or both scenarios
+thresholds <- c(0, 10, 30, 50, 70, 90)
 
 # Existing QLD transmission network total area (km²) — used for % increase
 EXISTING_TX_AREA_KM2 <- 663.64
@@ -130,6 +135,54 @@ process_scenario <- function(scenario) {
 for (sc in scenarios) {
   cat(sprintf("\n>>> Processing scenario: %s\n", sc))
   process_scenario(sc)
+}
+
+# =============================================================================
+# 4. Build Supplementary Table 4 — Combined TX Easement Area Summary
+# =============================================================================
+# Combines total_area_increase_tx1/tx2.xlsx, maps threshold numbers to labels,
+# and saves results/tables/Sup_info_table_tx_easement_area.xlsx
+
+THRESHOLD_LABEL_MAP <- c(
+  "0"  = "BAU",
+  "10" = "Top 90",
+  "30" = "Top 70",
+  "50" = "Top 50",
+  "70" = "Top 30"
+)
+
+sup_tbl_path <- here("results", "tables", "Sup_info_table_tx_easement_area.xlsx")
+if (!dir.exists(here("results", "tables"))) {
+  dir.create(here("results", "tables"), recursive = TRUE)
+}
+
+if (!file.exists(sup_tbl_path) || overwrite_mode) {
+  combined <- lapply(scenarios, function(sc) {
+    tx_proc_base <- if (sc == "tx1") tx1_processing else tx2_processing
+    totals_file  <- file.path(tx_proc_base, "QLD_ex_mod_summaries",
+                              paste0("total_area_increase_", sc, ".xlsx"))
+    if (!file.exists(totals_file)) {
+      warning(sprintf("Total area file not found for %s: %s", sc, totals_file))
+      return(NULL)
+    }
+    read_excel(totals_file) %>%
+      filter(threshold %in% as.integer(names(THRESHOLD_LABEL_MAP))) %>%
+      mutate(
+        Scenario            = sc,
+        Threshold           = THRESHOLD_LABEL_MAP[as.character(threshold)],
+        `Area increase (km2)` = round(total_area_diff, 2),
+        `Percent increase`    = round(percent_increase, 2)
+      ) %>%
+      arrange(match(threshold, as.integer(names(THRESHOLD_LABEL_MAP)))) %>%
+      select(Scenario, Threshold, `Area increase (km2)`, `Percent increase`)
+  })
+
+  sup_tbl <- bind_rows(combined)
+
+  write_xlsx(sup_tbl, sup_tbl_path)
+  cat(sprintf("  ✓ Supplementary Table 4 saved: %s\n", sup_tbl_path))
+} else {
+  cat("  >>> Supplementary Table 4 exists (set overwrite_mode = TRUE to regenerate).\n")
 }
 
 cat("\n=== TRANSMISSION UPGRADE CALCULATION COMPLETE ===\n")

@@ -11,6 +11,11 @@ library(glue) # For cleaner string formatting
 library(ggrepel) # For better label placement
 library(here)
 source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # --- Define Paths ---
 source_folder <- file.path(paths$zonation_raw, "Zonation_MNES_shapefiles")

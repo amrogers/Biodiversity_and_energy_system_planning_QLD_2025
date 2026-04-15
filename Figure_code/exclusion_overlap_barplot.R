@@ -4,6 +4,11 @@ library(tidyr)
 library(dplyr)
 library(here)
 source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # Read the data
 data <- read.csv(file.path(data_root, "Energy_system_model_outputs", "BV_exclusion_area_overlap.csv"))
@@ -11,8 +16,9 @@ data <- read.csv(file.path(data_root, "Energy_system_model_outputs", "BV_exclusi
 # Rename first column to something meaningful
 colnames(data)[1] <- "threshold"
 
-# Set the order of thresholds (reversed so 70-100 appears first)
-data$threshold <- factor(data$threshold, levels = rev(unique(data$threshold)))
+# Set the order of thresholds
+data$threshold <- factor(data$threshold, 
+                         levels = c("70-100", "50-70", "30-50", "0-30"))
 
 # Reshape data for wind
 wind_data <- data %>%
@@ -21,9 +27,12 @@ wind_data <- data %>%
                names_to = "category",
                values_to = "area") %>%
   mutate(type = "Wind",
-         category_type = paste0("Wind_", ifelse(category == "wind_exclusion", "Exclusion", "Available")),
-         category_type = factor(category_type, levels = c("Wind_Available", "Wind_Exclusion")),
-         percent = wind_exclusion_percent)
+         category_type = paste0("Wind_", ifelse(category == "wind_exclusion", 
+                                                "Exclusion", "Available")),
+         category_type = factor(category_type, levels = c("Wind_Available", 
+                                                          "Wind_Exclusion")),
+         percent = wind_exclusion_percent,
+         area = area / 1000)
 
 # Reshape data for PV
 pv_data <- data %>%
@@ -34,10 +43,14 @@ pv_data <- data %>%
   mutate(type = "PV",
          category_type = paste0("PV_", ifelse(category == "pv_exlcusion", "Exclusion", "Available")),
          category_type = factor(category_type, levels = c("PV_Available", "PV_Exclusion")),
-         percent = pv_exlcuion_percent)
+         percent = pv_exlcuion_percent,
+         area = area / 1000)
 
 # Combine datasets
 plot_data <- bind_rows(wind_data, pv_data)
+
+# Set factor order for type so PV appears first
+plot_data$type <- factor(plot_data$type, levels = c("PV", "Wind"))
 
 # Calculate total for each threshold-type combination for label positioning
 totals <- plot_data %>%
@@ -46,40 +59,51 @@ totals <- plot_data %>%
             percent = first(percent),
             .groups = "drop")
 
-# Create the stacked bar plot
-p <- ggplot(plot_data, aes(x = interaction(threshold, type), y = area, fill = category_type)) +
+# Threshold label mapping
+thresh_labels <- c(
+  "0-30"   = "Top 90%",
+  "30-50"  = "Top 70%",
+  "50-70"  = "Top 50%",
+  "70-100" = "Top 30%"
+)
+
+# Create the stacked bar plot with facets
+p <- ggplot(plot_data, aes(x = threshold, y = area, fill = category_type)) +
   geom_bar(stat = "identity", position = "stack", width = 0.7) +
-  geom_text(data = totals, 
-            aes(x = interaction(threshold, type), y = total, 
+  geom_text(data = totals,
+            aes(x = threshold, y = total,
                 label = paste0(round(percent * 100, 1), "%"), fill = NULL),
             vjust = -0.5, size = 3.5) +
   scale_fill_manual(values = c("Wind_Available" = "#87CEEB",
-                               "Wind_Exclusion" = "#8B4513", 
-                               "PV_Available" = "#FFD700",
-                               "PV_Exclusion" = "#FF8C00"),
-                    labels = c("Wind Available", "Wind Exclusion", 
-                               "PV Available", "PV Exclusion"),
-                    breaks = c("PV_Available", "PV_Exclusion", 
+                               "Wind_Exclusion" = "#8B4513",
+                               "PV_Available"   = "#FFD700",
+                               "PV_Exclusion"   = "#FF8C00"),
+                    breaks = c("PV_Available", "PV_Exclusion",
                                "Wind_Available", "Wind_Exclusion"),
+                    labels = c("PV available", "PV exclusion",
+                               "Wind available", "Wind exclusion"),
                     name = "Category") +
-  labs(#title = "Wind and PV Land Exclusion and Availability",
-    #subtitle = "By threshold level",
-    x = "Threshold and Energy Type",
-    y = "Area (km²)") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
-        plot.subtitle = element_text(hjust = 0.5, size = 11),
-        legend.position = "bottom") +
-  scale_x_discrete(labels = function(x) {
-    parts <- strsplit(as.character(x), "\\.")
-    sapply(parts, function(p) paste(p[1], p[2], sep = "\n"))
-  })
+  scale_x_discrete(labels = thresh_labels) +
+  scale_y_continuous(labels = scales::comma, limits = c(0, 600)) +
+  labs(
+    x = NULL,
+    y = "Area (k ha)"
+  ) +
+  facet_wrap(~ type, scales = "free_x", strip.position = "bottom") +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold", size = 13),
+    strip.placement = "outside",
+    panel.spacing = unit(1.5, "lines")
+  )
 
 # Display the plot
 print(p)
 
-# Optional: Save the plot
+# Save the plot
 ggsave(here("results", "figures", "Exclusions_stacked_bar_plot.png"),
        plot = p, width = 10, height = 6, dpi = 300)
 

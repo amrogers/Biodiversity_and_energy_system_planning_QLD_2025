@@ -25,10 +25,15 @@
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(sf, dplyr, parallel, doParallel, here)
 source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # --- USER CONTROL ---
-tx_scenario    <- "tx1"   # "tx1" or "tx2"
-overwrite_mode <- FALSE
+if (!exists("tx_scenario"))    tx_scenario    <- "tx1"    # "tx1" or "tx2"
+if (!exists("overwrite_mode")) overwrite_mode <- FALSE
 
 # =============================================================================
 # 1. Path Configuration

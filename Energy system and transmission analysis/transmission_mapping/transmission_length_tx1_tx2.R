@@ -25,9 +25,14 @@
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(ggplot2, dplyr, readr, stringr, scales, here)
 source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # --- USER CONTROL ---
-overwrite_mode <- FALSE
+if (!exists("overwrite_mode")) overwrite_mode <- FALSE
 
 # =============================================================================
 # 1. Path Configuration

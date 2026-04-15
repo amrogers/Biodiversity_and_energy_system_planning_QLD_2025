@@ -16,7 +16,8 @@
 #   Step 3 → QLD_new_tx_processing_summary.R
 #   Step 4 → transmission_length_tx1_tx2.R (Figure 3)
 #
-# Input:  BESP_data_qld_2025/QLD_v202412_eplus_tx1.gdb  (or tx2)
+# Input:  BESP_data_qld_2025/Energy_system_model_outputs/
+#              Energy_system_analysis_scenarios/QLD_v202412_eplus_tx1.gdb  (or tx2)
 #         (paths$gdb_tx1 / paths$gdb_tx2 in _paths.R)
 #
 # Output: results/transmission_processing/tx1/split_tx.gpkg
@@ -27,12 +28,19 @@
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(sf, dplyr, furrr, here)
 source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # --- USER CONTROL ---
-tx_scenario    <- "tx1"          # "tx1" or "tx2"
-years          <- c(2050)
-thresholds     <- c(0, 10, 30, 50, 70, 90)
-overwrite_mode <- FALSE
+# Defaults used when run standalone. When called from tx_run_all.R these are
+# set by the parent script — the if (!exists) guards prevent overwriting them.
+if (!exists("tx_scenario"))    tx_scenario    <- "tx1"    # "tx1" or "tx2"
+if (!exists("overwrite_mode")) overwrite_mode <- FALSE
+years      <- c(2050)
+thresholds <- c(0, 10, 30, 50, 70, 90)
 
 # =============================================================================
 # 1. Path Configuration
