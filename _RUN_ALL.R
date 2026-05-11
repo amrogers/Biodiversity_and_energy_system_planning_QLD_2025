@@ -19,7 +19,7 @@
 #   Step 2 — Supplementary material figures:
 #     Supp. Fig 1D — Zonation performance curves (Zonation curves.R)
 #     Supp. Fig 2  — Zero-coverage species map (zero_coverage_species.R)
-#     Supp. Fig 6  — Exclusion area barplot (exclusion_overlap_barplot.R)
+#     Supp. Fig 6  — Exclusion area barplot (land_use_competition_QLD.R → exclusion_overlap_barplot.R)
 #
 #   NOTE: Figure 3 inputs are pre-computed by tx_run_all.R (transmission pipeline).
 #   Set run_step1 / run_step2 to TRUE/FALSE to run steps independently.
@@ -51,9 +51,10 @@ pipeline_step1 <- list(
 
 # Step 2: supplementary figures
 pipeline_step2 <- list(
-  "Supp. Fig 1D (Zonation curves)"    = here("Figure_code", "Zonation curves.R"),
-  "Supp. Fig 2 (zero-coverage spp.)"  = here("species_code", "zero_coverage_species.R"),
-  "Supp. Fig 6 (exclusion barplot)"   = here("Figure_code", "exclusion_overlap_barplot.R")
+  "Supp. Fig 1D (Zonation curves)"         = here("Figure_code", "Zonation curves.R"),
+  "Supp. Fig 2 (zero-coverage spp.)"       = here("species_code", "zero_coverage_species.R"),
+  "Supp. Fig 6 data (land use competition)" = here("Biodiversity_analysis", "land_use_competition_QLD.R"),
+  "Supp. Fig 6 (exclusion barplot)"        = here("Figure_code", "exclusion_overlap_barplot.R")
 )
 
 # =============================================================================

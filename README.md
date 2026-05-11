@@ -105,7 +105,27 @@ source("Zonation curves.R")
 source("Figure_code/NPV_bar_plot.R")
 ```
 
-### 4. Spatial Mapping — Figure 1b–e (`Energy system and transmission mapping_code/domestic_export_map_iterations.R`)
+### 4. Exclusion Area Analysis — Supp. Fig 6 (`Biodiversity_analysis/land_use_competition_QLD.R` → `Figure_code/exclusion_overlap_barplot.R`)
+**Purpose**: Quantifies wind and PV exclusion areas within each Zonation priority band using raster cell counting (no polygonisation). Produces the CSV consumed by `exclusion_overlap_barplot.R` to generate Supp. Fig 6.
+
+**Inputs**:
+- Zonation rankmap: `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/out_example1/rankmap.tif`
+- Wind exclusion raster: `NetZero_scenarios_outputs/QLD_v202412_eplus/Area_outside_exclusions/rasters/combined_wind.tif`
+- PV exclusion raster: `NetZero_scenarios_outputs/QLD_v202412_eplus/Area_outside_exclusions/rasters/combined_pv.tif`
+
+**Output**: `BESP_data_qld_2025/Energy_system_model_outputs/BV_exclusion_area_overlap.csv`
+
+**Bands**: Top 30%, Top 30–50%, Bottom 50–70%, Bottom 70–90% (Zonation 0–1 scale, 250 m cells = 6.25 ha each)
+
+**Usage**:
+```r
+# Run data script first, then figure script
+source("Biodiversity_analysis/land_use_competition_QLD.R")
+source("Figure_code/exclusion_overlap_barplot.R")
+# Or use _RUN_ALL.R — both steps are included in pipeline_step2
+```
+
+### 5. Spatial Mapping — Figure 1b–e (`Energy system and transmission mapping_code/domestic_export_map_iterations.R`)
 **Purpose**: Generates Figure 1b–e — cost-optimised VRE siting maps for BAU and biodiversity protection scenarios (Top 30/50/70%). Processes TX1/TX2 GDB files across thresholds (0/10/30/50/70/90%) and years (2030/2040/2050), producing shapefiles and PNG maps.
 
 **Note**: Figure 1a (biodiversity prioritisation map) was produced in ArcGIS Pro using the Zonation output raster as its source. The source file is `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/out_example1/rankmap.tif` (accessible via `paths$rankmap` in `_paths.R`).
@@ -194,6 +214,8 @@ The scripts use the pacman manager. Missing libraries (e.g., sf, here, ggpattern
 CRS: GDA2020 / MGA Zone 56 (EPSG:7856).
 
 Version History
+v1.2 (May 2026): Replaced `RZ_area_outside_exclusions_and_ECNES.R` with `land_use_competition_QLD.R` as the data source for Supp. Fig 6. New script uses raster cell counting (terra) instead of vector intersection (sf) for faster, reproducible exclusion area summaries. Pipeline updated in `_RUN_ALL.R`.
+
 v1.1 (Jan 2026): Updated to full R Project structure; implemented here for relative pathing; added automated unzipping logic and LLM-assisted code optimization.
 
 v1.0 (2025): Initial release for peer review.
@@ -202,5 +224,5 @@ Author: Andrew Rogers
 
 LLMs used: Claude AI and Gemini
 
-Last Updated: March 2026
+Last Updated: May 2026
 
