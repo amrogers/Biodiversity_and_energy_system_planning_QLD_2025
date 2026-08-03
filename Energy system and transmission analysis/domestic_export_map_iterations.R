@@ -14,6 +14,12 @@
 # Load required packages
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(sf, dplyr, furrr, data.table, progress, ggplot2, ozmaps, purrr, scales, here)
+source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # Set up parallel processing
 future::plan(multisession, workers = max(1, parallel::detectCores() - 1))
@@ -24,9 +30,9 @@ future::plan(multisession, workers = max(1, parallel::detectCores() - 1))
 
 # 1. Define Standardized Paths using here()
 # These work regardless of who downloads the code
-data_root      <- here("data")
+# data_root is set by _paths.R (checks here("data") then here("BESP_data_qld_2025"))
 scenarios_dir  <- file.path(data_root, "Energy_system_model_outputs", "Energy_system_analysis_scenarios")
-output_root    <- here("figures", "energy_maps")
+output_root    <- here("results", "figures", "energy_maps")
 
 # Ensure output directory exists
 if (!dir.exists(output_root)) dir.create(output_root, recursive = TRUE)
