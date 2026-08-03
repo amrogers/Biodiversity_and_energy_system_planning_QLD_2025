@@ -1,17 +1,16 @@
 Supplementary Materials: Biodiversity and Energy System Planning - Queensland 2025
+> See also: `Readme.txt` in this folder for the plain-text version of these instructions.
+
 Overview
 This repository contains analysis scripts and project configurations for the study "Biodiversity and Energy System Planning in Queensland: Balancing Conservation and Infrastructure Development".
 
 Note on Data: Due to size constraints, the raw spatial data (approx. 7.8 GB) is hosted separately on Figshare: https://doi.org/10.26188/29604590. This repository provides the code to process that data into the final results and figures.
 
-Repository Structure
-The project is organized as an R Project. Opening the .Rproj file automatically sets the correct working directory.scripts for the study "Biodiversity and Energy System Planning in Queensland: Balancing Conservation and Infrastructure Development". The materials include energy system modeling results, conservation priority analyses, and spatial mapping tools.
-
 #Data
 Data used for this study can be found through figshare here:
 https://figshare.unimelb.edu.au/articles/dataset/Supplementary_Data_Biodiversity_and_Energy_System_Planning_-_Queensland_2025/29604590
 
-reccomended citation: Rogers, Andrew (2025). Supplementary Data: Biodiversity and Energy System Planning - Queensland 2025. The University of Melbourne. Dataset. https://doi.org/10.26188/29604590.v1
+Recommended citation: Rogers, Andrew (2025). Supplementary Data: Biodiversity and Energy System Planning - Queensland 2025. The University of Melbourne. Dataset. https://doi.org/10.26188/29604590.v1
 
 ## Repository Structure
 
@@ -21,7 +20,9 @@ Biodiversity_and_energy_system_planning_2024/
 │   ├── Energy_system_model_outputs/       # Processed CSV/XLSX files
 │   ├── Zonation_analysis/                 # Zonation run files and curves
 │   └── [.gdb.zip files from Figshare]     # Large spatial databases
-├── scripts/                               # R Analysis scripts
+├── Figure_code/                           # Figure scripts
+├── Biodiversity_analysis/                 # Biodiversity analysis scripts
+├── Energy system and transmission analysis/ # Transmission pipeline scripts
 ├── results/                               # Created automatically by scripts
 │   ├── figures/                           # PNG/PDF outputs
 │   ├── tables/                            # Summary CSV outputs
@@ -54,7 +55,7 @@ Biodiversity_and_energy_system_planning_2024/
 
 ## Analysis Scripts
 
-### 1. Species Coverage — All MNES (`species_code/Mean_spp_scenario_coverage.R`)
+### 1. Species Coverage — All MNES (`Biodiversity_analysis/Mean_spp_scenario_coverage.R`)
 **Purpose**: Calculates mean (+ 95% CI), min, and max distribution coverage across **all** MNES (species and ecological communities in `feature_curves.csv`) at each biodiversity protection scenario threshold. Produces the primary data for Table 1 in the main manuscript.
 
 **Input**: `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/out_example1/feature_curves.csv`
@@ -64,7 +65,7 @@ Biodiversity_and_energy_system_planning_2024/
 
 **Usage**:
 ```r
-source("species_code/Mean_spp_scenario_coverage.R")
+source("Biodiversity_analysis/Mean_spp_scenario_coverage.R")
 ```
 
 ### 2. Cost Analysis (`percent cost increase_line plot.R`)
@@ -82,10 +83,10 @@ source("percent cost increase_line plot.R")
 ### 2. Conservation Priority Analysis (`Zonation curves.R`)
 **Purpose**: Creates performance curves for conservation features and analyzes coverage at different priority thresholds.
 
-**Input**: `Zonation_output/250m_SNES_ECNES_red_zones_weighted_QLD/out_example1/feature_curves.csv`
+**Input**: `Zonation_output/250m_QLD_2024/out_example1/feature_curves.csv`
 **Outputs**: 
 - `figures/zonation_performance_curves.png`
-- `Zonation_output/250m_SNES_ECNES_red_zones_weighted_QLD/out_example1/feature_coverage_summary_with_CI.csv`
+- `Zonation_output/250m_QLD_2024/out_example1/feature_coverage_summary_with_CI.csv`
 
 **Usage**:
 ```r
@@ -125,7 +126,7 @@ source("Figure_code/exclusion_overlap_barplot.R")
 # Or use _RUN_ALL.R — both steps are included in pipeline_step2
 ```
 
-### 5. Spatial Mapping — Figure 1b–e (`Energy system and transmission mapping_code/domestic_export_map_iterations.R`)
+### 5. Spatial Mapping — Figure 1b–e (`Energy system and transmission analysis/domestic_export_map_iterations.R`)
 **Purpose**: Generates Figure 1b–e — cost-optimised VRE siting maps for BAU and biodiversity protection scenarios (Top 30/50/70%). Processes TX1/TX2 GDB files across thresholds (0/10/30/50/70/90%) and years (2030/2040/2050), producing shapefiles and PNG maps.
 
 **Note**: Figure 1a (biodiversity prioritisation map) was produced in ArcGIS Pro using the Zonation output raster as its source. The source file is `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/out_example1/rankmap.tif` (accessible via `paths$rankmap` in `_paths.R`).
@@ -139,7 +140,7 @@ source("Figure_code/exclusion_overlap_barplot.R")
 **Usage**:
 ```r
 # Ensure GDB files are unzipped before running
-source("Energy system and transmission mapping_code/domestic_export_map_iterations.R")
+source("Energy system and transmission analysis/domestic_export_map_iterations.R")
 ```
 
 ## Getting Started
@@ -173,12 +174,12 @@ Required R packages (automatically installed by scripts):
    source("_RUN_ALL.R")
 
    # Or run individual scripts:
-   source("species_code/Mean_spp_scenario_coverage.R")   # Table 1 — all MNES coverage
+   source("Biodiversity_analysis/Mean_spp_scenario_coverage.R")   # Table 1 — all MNES coverage
    source("Figure_code/Critically_endangered_mean_coverage_and_line_plot.R")  # Table 1 CE/EN + plot
    source("Figure_code/Zonation curves.R")
    source("Figure_code/percent cost increase_line plot.R")
    source("Figure_code/NPV_bar_plot.R")
-   source("Energy system and transmission mapping_code/domestic_export_map_iterations.R")  # Figure 1b-e
+   source("Energy system and transmission analysis/domestic_export_map_iterations.R")  # Figure 1b-e
    ```
 
 ### Expected Outputs

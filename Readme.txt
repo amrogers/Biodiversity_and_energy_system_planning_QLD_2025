@@ -1,4 +1,5 @@
 Supplementary Materials: Biodiversity and Energy System Planning - Queensland 2025
+See also: README.md in this folder for the formatted Markdown version of these instructions.
 
 Overview
 --------
@@ -115,7 +116,7 @@ _RUN_ALL.R (see Getting Started below). Scripts can also be run individually.
    Output:   results/figures/Exclusions_stacked_bar_plot.png
 
 
-Transmission Pipeline Scripts (Energy system and transmission mapping_code/transmission_mapping/)
+Transmission Pipeline Scripts (Energy system and transmission analysis/transmission_mapping/)
 ---------------------------------------------------------------------------------------------------
 These scripts process energy model GDB outputs through a spatial pipeline to produce
 the transmission upgrade and length summaries used for Figure 3. Run in order for
@@ -199,8 +200,8 @@ Supporting transmission scripts (not required for Figure 3):
               loaded before running (see script header).
 
 Spatial Reference Data
-  The transmission pipeline scripts require the following shapefiles to be placed in:
-    BESP_data_qld_2025/Spatial_reference_data/
+  The transmission pipeline scripts require the following shapefiles located in:
+    BESP_data_qld_2025/Energy_system_model_outputs/Electricity_Transmission_Lines/
   - Electricity_Transmission_Lines.shp
   - Electricity_Transmission_Lines_1km_buff.shp
   - QLD_existing_tx_simplified_buff_no_overlap2.shp
@@ -208,7 +209,7 @@ Spatial Reference Data
   Configure paths via paths$existing_tx, paths$existing_tx_buff, paths$existing_tx_simp
   in _paths.R.
 
-Note on duplicate scripts: The root-level Energy system and transmission mapping_code/
+Note on duplicate scripts: The root-level Energy system and transmission analysis/
 folder contains older versions of these scripts. The canonical current versions are in
 the transmission_mapping/ subfolder.
 
