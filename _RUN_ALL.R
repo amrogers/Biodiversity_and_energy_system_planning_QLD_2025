@@ -42,8 +42,8 @@ start_time <- Sys.time()
 
 # Step 1: main manuscript figures/tables
 pipeline_step1 <- list(
-  "Figure 1b-e (VRE maps)"  = here("Energy system and transmission mapping_code", "domestic_export_map_iterations.R"),
-  "Table 1 (all MNES)"      = here("species_code", "Mean_spp_scenario_coverage.R"),
+  "Figure 1b-e (VRE maps)"  = here("Energy system and transmission analysis", "domestic_export_map_iterations.R"),
+  "Table 1 (all MNES)"      = here("Biodiversity_analysis", "Mean_spp_scenario_coverage.R"),
   "Figure 2 (NPV)"          = here("Figure_code", "NPV_bar_plot.R"),
   "Figure 3 (TX length)"    = here("Figure_code", "tx_length_figure.R"),
   "Figure 4 (costs)"        = here("Figure_code", "percent cost increase_line plot.R")
@@ -52,7 +52,7 @@ pipeline_step1 <- list(
 # Step 2: supplementary figures
 pipeline_step2 <- list(
   "Supp. Fig 1D (Zonation curves)"         = here("Figure_code", "Zonation curves.R"),
-  "Supp. Fig 2 (zero-coverage spp.)"       = here("species_code", "zero_coverage_species.R"),
+  "Supp. Fig 2 (zero-coverage spp.)"       = here("Biodiversity_analysis", "zero_coverage_species.R"),
   "Supp. Fig 6 data (land use competition)" = here("Biodiversity_analysis", "land_use_competition_QLD.R"),
   "Supp. Fig 6 (exclusion barplot)"        = here("Figure_code", "exclusion_overlap_barplot.R")
 )
