@@ -18,7 +18,7 @@ if (file.exists(local_override)) {
 }
 
 # --- Define Paths ---
-source_folder <- file.path(paths$zonation_raw, "Zonation_MNES_shapefiles")
+source_folder <- paths$snes_shapefiles
 target_folder <- here("results", "zero_coverage")
 capad_path    <- file.path(paths$zonation_raw, "QLD_CAPAD", "CAPAD_QLD.shp")
 
