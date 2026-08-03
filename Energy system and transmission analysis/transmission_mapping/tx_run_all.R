@@ -67,7 +67,7 @@ run_supporting <- FALSE  # Supporting analyses (Supp 1-5, not needed for Fig 3)
 # HELPERS
 # =============================================================================
 
-script_dir <- here("Energy system and transmission mapping_code",
+script_dir <- here("Energy system and transmission analysis",
                    "transmission_mapping")
 
 run_step <- function(label, script_name, log) {
