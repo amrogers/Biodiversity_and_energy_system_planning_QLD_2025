@@ -175,7 +175,7 @@ Supporting transmission scripts (not required for Figure 3):
                    summarized_transmission_t{N}.xlsx
                    total_area_increase_{scenario}.xlsx
 
-  QLD_exisitng_model_tx_max_join.R
+  QLD_existing_model_tx_max_join.R
     Purpose:  Joins modelled TX to simplified existing network, recording
               maximum modelled kV per existing corridor.
     Output:   results/transmission_processing/tx2/existing_model_tx_max_join/
@@ -194,7 +194,7 @@ Supporting transmission scripts (not required for Figure 3):
     Purpose:  One-off utility. Reprojects the existing TX lines shapefile to
               GDA2020 MGA Zone 55 and calculates line lengths in km.
 
-  QLD_summarize_exisiting_in_simiplified_tx.R
+  QLD_summarize_existing_in_simplified_tx.R
     Purpose:  Utility fragment. Summarises existing TX attributes into a
               simplified corridor network. Requires `simplified_tx` to be
               loaded before running (see script header).

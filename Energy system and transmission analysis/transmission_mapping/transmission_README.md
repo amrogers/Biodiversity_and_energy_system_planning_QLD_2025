@@ -137,7 +137,7 @@ Set `run_supporting <- TRUE` in `tx_run_all.R` to run them.
 - **Output:** `results/transmission_processing/{tx}/tx_overlap_tables/T{N}_existing_join.csv`
 - **TX scenarios:** Both, via loop.
 
-#### Supp 2 — `QLD_exisitng_model_tx_max_join.R`
+#### Supp 2 — `QLD_existing_model_tx_max_join.R`
 - Joins modelled TX to the simplified existing corridor network, recording
   maximum modelled kV per corridor. Default scenario: TX2.
 - **Input:** `paths$existing_tx_simp` → `QLD_existing_tx_simplified_buff_no_overlap2.shp`
@@ -163,7 +163,7 @@ Set `run_supporting <- TRUE` in `tx_run_all.R` to run them.
 - **Output:** `results/transmission_processing/{tx}/QLD_ex_mod_summaries/total_area_increase_{tx}.xlsx`
 - **TX scenarios:** Processes TX1 and TX2 internally (not via the runner loop).
 
-#### Utility — `QLD_summarize_exisiting_in_simiplified_tx.R`
+#### Utility — `QLD_summarize_existing_in_simplified_tx.R`
 - Fragment script. Summarises existing network attributes into the simplified
   corridor network. **Requires `simplified_tx` to be loaded manually before
   sourcing** — not included in `tx_run_all.R`.

@@ -33,12 +33,12 @@
 # SUPPORTING ANALYSES (run_supporting = TRUE):
 #  For each scenario:
 #  Supp 1   Transmission_clip_join_w_existing.R   Overlap tables
-#  Supp 2   QLD_exisitng_model_tx_max_join.R      Max kV join
+#  Supp 2   QLD_existing_model_tx_max_join.R       Max kV join
 #  Supp 3   QLD_modelled_tx_easement_area.R        Easement area calc
 #  Supp 4   QLD_tranmission_summaries_modelled_existing.R  Alt summary
 #  Supp 5   Transmission_upgrade_calculation.R    Upgrade area (both scenarios)
 #
-# NOTE: QLD_summarize_exisiting_in_simiplified_tx.R is a utility fragment
+# NOTE: QLD_summarize_existing_in_simplified_tx.R is a utility fragment
 #       that requires `simplified_tx` to be loaded manually — excluded here.
 # =============================================================================
 
@@ -208,7 +208,7 @@ if (run_supporting) {
                     "Transmission_clip_join_w_existing.R", log)
 
     log <- run_step(sprintf("[%s] Supp 2: Max kV join", sc),
-                    "QLD_exisitng_model_tx_max_join.R", log)
+                    "QLD_existing_model_tx_max_join.R", log)
 
     log <- run_step(sprintf("[%s] Supp 3: Easement area", sc),
                     "QLD_modelled_tx_easement_area.R", log)
