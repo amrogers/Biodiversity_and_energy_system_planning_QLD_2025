@@ -3,13 +3,19 @@ library(ggplot2)
 library(tidyr)
 library(dplyr)
 library(here)
+source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
 
 # Set PREVIEW <- TRUE to display plot without saving
 # Set PREVIEW <- FALSE to save the plot to disk
 PREVIEW <- FALSE
 
 # Read the data
-data <- read.csv(here::here("Energy_system_model_outputs", "BV_exclusion_area_overlap.csv"))
+data <- read.csv(file.path(paths$energy_outputs, "BV_exclusion_area_overlap.csv"))
 
 # Set the order of thresholds
 data$threshold <- factor(data$threshold,
@@ -57,10 +63,10 @@ totals <- plot_data %>%
 
 # Threshold label mapping
 thresh_labels <- c(
-  "Top 30%"       = "Top 30%",
-  "Top 30-50%"    = "Top 30-50%",
-  "Bottom 50-70%" = "Bottom 50-70%",
-  "Bottom 70-90%" = "Bottom 70-90%"
+  "Top 30%"       = "Top 30% Biodiversity value",
+  "Top 30-50%"    = "Biodiversity value 30-50%",
+  "Bottom 50-70%" = "Biodiversity value 50-70%",
+  "Bottom 70-90%" = "Biodiversity value 70-90%"
 )
 
 # Create the stacked bar plot with facets
@@ -76,9 +82,9 @@ p <- ggplot(plot_data, aes(x = threshold, y = area, fill = category_type)) +
                                "PV_Exclusion"   = "#FF8C00"),
                     breaks = c("PV_Available", "PV_Exclusion",
                                "Wind_Available", "Wind_Exclusion"),
-                    labels = c("PV available", "PV exclusion",
-                               "Wind available", "Wind exclusion"),
-                    name = "Category") +
+                    labels = c("Area available for PV", "Area excluded for PV",
+                               "Area available for wind", "Area excluded for wind"),
+                    name = NULL) +
   scale_x_discrete(labels = thresh_labels) +
   scale_y_continuous(labels = scales::comma) +
   labs(
@@ -100,7 +106,9 @@ p <- ggplot(plot_data, aes(x = threshold, y = area, fill = category_type)) +
 print(p)
 
 if (!PREVIEW) {
-  ggsave(here::here("code", "Biodiversity_and_energy_system_planning_2024", "results", "figures", "Exclusions_stacked_bar_plot.png"),
+  fig_dir <- here::here("results", "figures")
+  if (!dir.exists(fig_dir)) dir.create(fig_dir, recursive = TRUE)
+  ggsave(file.path(fig_dir, "Exclusions_stacked_bar_plot.png"),
          plot = p, width = 10, height = 6, dpi = 300)
   cat("Plot saved\n")
 } else {

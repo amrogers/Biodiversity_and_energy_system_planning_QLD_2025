@@ -40,16 +40,26 @@
 # Date: 2025-12-08
 ################################################################################
 
-library(terra)
+if (!require(pacman)) install.packages("pacman")
+pacman::p_load(terra, here)
+source(here::here("_paths.R"))
+local_override <- here::here("_paths_local.R")
+if (file.exists(local_override)) {
+  source(local_override)
+  cat(">>> Using local path overrides from _paths_local.R\n")
+}
+
+# --- USER CONTROL ---
+overwrite_mode <- FALSE
 
 # ------------------------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------------------------
 
-rankmap_path   <- "Z:/BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/out_example1/rankmap.tif"
-wind_excl_path <- "Z:/NetZero_scenarios_outputs/QLD_v202412_eplus/Area_outside_exclusions/rasters/combined_wind.tif"
-pv_excl_path   <- "Z:/NetZero_scenarios_outputs/QLD_v202412_eplus/Area_outside_exclusions/rasters/combined_pv.tif"
-output_path    <- "Z:/BESP_data_qld_2025/Energy_system_model_outputs/BV_exclusion_area_overlap.csv"
+rankmap_path   <- paths$rankmap
+wind_excl_path <- paths$wind_excl
+pv_excl_path   <- paths$pv_excl
+output_path    <- file.path(paths$energy_outputs, "BV_exclusion_area_overlap.csv")
 
 # Cell area in hectares (250m x 250m = 62,500 m2 = 6.25 ha)
 CELL_AREA_HA <- (250 * 250) / 10000
@@ -248,4 +258,18 @@ main <- function() {
   return(results_df)
 }
 
-results <- main()
+if (file.exists(output_path) && !overwrite_mode) {
+  cat(sprintf("Output exists — skipping (set overwrite_mode <- TRUE to recompute):\n  %s\n", output_path))
+  results <- read.csv(output_path, stringsAsFactors = FALSE)
+} else {
+  missing_inputs <- c(rankmap_path, wind_excl_path, pv_excl_path)[
+    !file.exists(c(rankmap_path, wind_excl_path, pv_excl_path))]
+  if (length(missing_inputs) > 0) {
+    cat("Cannot recompute: the following raster inputs are missing:\n")
+    for (f in missing_inputs) cat(sprintf("  %s\n", f))
+    cat("The wind/PV exclusion rasters are energy-model outputs not included in the\n")
+    cat("Figshare deposit. BV_exclusion_area_overlap.csv ships as a pre-computed result.\n")
+    stop("Missing raster inputs — supply files or set overwrite_mode <- FALSE to use pre-computed CSV")
+  }
+  results <- main()
+}
