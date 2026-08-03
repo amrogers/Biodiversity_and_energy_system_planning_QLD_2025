@@ -220,16 +220,11 @@ All scripts write into the `results/` directory:
 | Figure 3 (TX length) | Transmission pipeline — 4 scripts | `tx1.gdb`, `tx2.gdb`, TX shapefiles | R |
 | Figure 4 (cost increase) | `Figure_code/percent cost increase_line plot.R` | `cost_increase_results.csv` | R |
 | Supp. Fig 1D (Zonation curves) | `Figure_code/Zonation curves.R` | `feature_curves.csv` | R |
-| Supp. Fig 2 (zero coverage map) | `Biodiversity_analysis/zero_coverage_species.R` | species shapefiles† | R |
+| Supp. Fig 2 (zero coverage map) | `Biodiversity_analysis/zero_coverage_species.R` | species shapefiles | R |
 | Supp. Fig 6 (exclusion barplot) | `Biodiversity_analysis/land_use_competition_QLD.R` → `Figure_code/exclusion_overlap_barplot.R` | `BV_exclusion_area_overlap.csv` | R |
-
-† See "What is not included" below.
 
 ### The `overwrite_mode` flag
 Each script sets `overwrite_mode <- FALSE` near the top. With this default, if an output file already exists in `results/`, the script prints a message and skips recomputation — this is what makes the default run take approximately 2 minutes. Set `overwrite_mode <- TRUE` to force recalculation and overwrite existing outputs. Two scripts — `Mean_spp_scenario_coverage.R` and `NPV_bar_plot.R` — always recompute regardless of this flag.
-
-### What is not included in the Figshare deposit
-**Species distribution shapefiles**: `Biodiversity_analysis/zero_coverage_species.R` (Supp. Fig 2) requires individual species shapefiles in `BESP_data_qld_2025/Zonation_analysis/Zonation_MNES_shapefiles/shapefiles/`. These files are not in the Figshare deposit due to file size. The script will warn when they are absent and the supplementary figure will not be produced.
 
 ## File Size Information
 - **Total repository size**: ~7.8 GB

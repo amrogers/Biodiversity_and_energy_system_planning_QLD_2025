@@ -394,7 +394,7 @@ Figure and table reference
 
   Supplementary Fig 2 (zero coverage species map)
     Script:  Biodiversity_analysis/zero_coverage_species.R
-    Input:   species shapefiles (see What is not included below)
+    Input:   species shapefiles
     Tool:    R
 
   Supplementary Fig 6 (exclusion area barplot)
@@ -410,14 +410,6 @@ recomputation -- this is what makes the default run take approximately 2 minutes
 Set overwrite_mode <- TRUE to force recalculation and overwrite existing outputs.
 Two scripts -- Mean_spp_scenario_coverage.R and NPV_bar_plot.R -- always recompute
 regardless of this flag.
-
-What is not included in the Figshare deposit
-  Species distribution shapefiles:
-    Biodiversity_analysis/zero_coverage_species.R (Supplementary Fig 2) requires
-    individual species shapefiles located at:
-      BESP_data_qld_2025/Zonation_analysis/Zonation_MNES_shapefiles/shapefiles/
-    These files are not in the Figshare deposit due to file size. The script will
-    warn when they are absent and the supplementary figure will not be produced.
 
 
 Re-running the Zonation Analysis

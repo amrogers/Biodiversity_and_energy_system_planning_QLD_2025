@@ -63,8 +63,6 @@ paths <- list(
                               "QLD_threshold_tx2_new_summary.csv"),
 
   # --- Species / SNES spatial data ---
-  # NOTE: per-species shapefiles are NOT included in the Figshare deposit (file size).
-  # snes_dir and snes_shapefiles point to where a user would place them if supplied.
   snes_dir        = file.path(data_root, "Zonation_analysis", "Zonation_MNES_shapefiles"),
   snes_shapefiles = file.path(data_root, "Zonation_analysis", "Zonation_MNES_shapefiles", "shapefiles"),
   snes_attributes = file.path(data_root, "Zonation_analysis", "Zonation_MNES_shapefiles", "species_attributes.csv"),
@@ -86,8 +84,6 @@ paths <- list(
 
   # --- Wind/PV exclusion rasters (energy-model outputs) ---
   # Required only by land_use_competition_QLD.R when overwrite_mode = TRUE.
-  # Place rasters here to recompute BV_exclusion_area_overlap.csv from scratch.
-  # Not included in the Figshare deposit; BV_exclusion_area_overlap.csv ships instead.
   wind_excl = file.path(data_root, "Energy_system_model_outputs",
                         "area_outside_exclusions", "combined_wind.tif"),
   pv_excl   = file.path(data_root, "Energy_system_model_outputs",
