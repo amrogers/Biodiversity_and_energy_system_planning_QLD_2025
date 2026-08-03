@@ -321,6 +321,105 @@ Setup Instructions
      source(here::here("Figure_code", "2050_domestic_CPA_comparison.R"))
 
 
+Reproducing this Analysis
+--------------------------
+
+Quick start
+1. Download the Figshare archive (doi:10.26188/29604590) and unzip all contents
+   into the BESP_data_qld_2025/ folder inside the repository root.
+2. Open Biodiversity_and_energy_system_planning_2024.Rproj in RStudio -- this sets
+   the working directory automatically via the here package.
+3. Run the full pipeline:
+     source("_RUN_ALL.R")
+4. Expected runtime: approximately 2 minutes on a modern laptop (default run from
+   an empty results/ directory, verified 2026-08-03 on R 4.4.2 / Windows 10 x64).
+
+Platform requirements by step
+  All _RUN_ALL.R steps (main figures and tables)
+    R >= 4.4, Windows 10 x64
+
+  Figure 1a -- biodiversity priority map
+    ArcGIS Pro; no script provided; source raster is rankmap.tif
+
+  Figure 3 -- transmission pipeline
+    R + existing TX shapefiles (included in Figshare data)
+
+  Re-running Zonation from scratch
+    Zonation 5 (Windows)
+
+  Regenerating GDB model outputs from scratch
+    netzero_navigate external codebase (not distributed)
+
+Figure and table reference
+
+  Table 1 (all MNES)
+    Script:  Biodiversity_analysis/Mean_spp_scenario_coverage.R
+    Input:   feature_curves.csv
+    Tool:    R
+
+  Table 1 (CE/EN) + line plot
+    Script:  Figure_code/Critically_endangered_mean_coverage_and_line_plot.R
+    Input:   feature_curves.csv
+    Tool:    R
+
+  Figure 1a (biodiversity priority map)
+    Script:  none (produced in ArcGIS Pro)
+    Input:   rankmap.tif
+    Tool:    ArcGIS Pro
+
+  Figure 1b-e (VRE siting maps)
+    Script:  Energy system and transmission analysis/domestic_export_map_iterations.R
+    Input:   tx1.gdb, tx2.gdb
+    Tool:    R
+
+  Figure 2 (NPV)
+    Script:  Figure_code/NPV_bar_plot.R
+    Input:   eplus_Domestic_NPV_figure.csv
+    Tool:    R
+
+  Figure 3 (transmission length)
+    Script:  Transmission pipeline -- 4 scripts (see Transmission Pipeline Scripts above)
+    Input:   tx1.gdb, tx2.gdb, existing TX shapefiles
+    Tool:    R
+
+  Figure 4 (cost increase)
+    Script:  Figure_code/percent cost increase_line plot.R
+    Input:   cost_increase_results.csv
+    Tool:    R
+
+  Supplementary Fig 1D (Zonation performance curves)
+    Script:  Figure_code/Zonation curves.R
+    Input:   feature_curves.csv
+    Tool:    R
+
+  Supplementary Fig 2 (zero coverage species map)
+    Script:  Biodiversity_analysis/zero_coverage_species.R
+    Input:   species shapefiles (see What is not included below)
+    Tool:    R
+
+  Supplementary Fig 6 (exclusion area barplot)
+    Script:  Biodiversity_analysis/land_use_competition_QLD.R
+             Figure_code/exclusion_overlap_barplot.R
+    Input:   BV_exclusion_area_overlap.csv
+    Tool:    R
+
+The overwrite_mode flag
+Each script sets overwrite_mode <- FALSE near the top. With this default, if an
+output file already exists in results/, the script prints a message and skips
+recomputation -- this is what makes the default run take approximately 2 minutes.
+Set overwrite_mode <- TRUE to force recalculation and overwrite existing outputs.
+Two scripts -- Mean_spp_scenario_coverage.R and NPV_bar_plot.R -- always recompute
+regardless of this flag.
+
+What is not included in the Figshare deposit
+  Species distribution shapefiles:
+    Biodiversity_analysis/zero_coverage_species.R (Supplementary Fig 2) requires
+    individual species shapefiles located at:
+      BESP_data_qld_2025/Zonation_analysis/Zonation_MNES_shapefiles/shapefiles/
+    These files are not in the Figshare deposit due to file size. The script will
+    warn when they are absent and the supplementary figure will not be produced.
+
+
 Re-running the Zonation Analysis
 ---------------------------------
 The Zonation output files included in the Figshare data were produced using Zonation 5.
@@ -371,6 +470,12 @@ File Size Information
 
 Version History
 ---------------
+v1.3 (Aug 2026): Reproducibility fixes -- corrected script path references in
+  _paths.R, land_use_competition_QLD.R, zero_coverage_species.R, tx_run_all.R,
+  and domestic_export_map_iterations.R; fixed minimal_settings.z5 Zonation path;
+  renamed two misspelled scripts; added wind/PV exclusion rasters to deposit;
+  added Reproducing this Analysis section.
+
 v1.2 (Mar 2026): Updated data folder structure (BESP_data_qld_2025/); updated Zonation
   output path to 250m_QLD_2024; restructured _RUN_ALL.R into Step 1 (paper figures)
   and Step 2 (maps/barplots) with independent run flags; added session info output;
@@ -385,4 +490,4 @@ v1.0 (2025): Initial release for peer review.
 
 Author: Andrew Rogers
 LLMs used: Claude AI and Gemini
-Last Updated: March 2026
+Last Updated: August 2026

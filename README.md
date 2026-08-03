@@ -183,11 +183,53 @@ Required R packages (automatically installed by scripts):
    ```
 
 ### Expected Outputs
-All scripts create a `figures/` directory with organized outputs:
-- `figures/energy_cost_increase_plot.png`
-- `figures/zonation_performance_curves.png` 
-- `figures/npv_analysis_plot.png`
-- `figures/energy_maps/` (multiple subdirectories)
+All scripts write into the `results/` directory:
+- `results/figures/` — PNG outputs (Figures 1b–e, 2, 4, Supp. Fig 1D, 6)
+- `results/tables/` — Summary CSV outputs (Table 1 data)
+- `results/zonation_figures/` — Zonation performance curves
+- `results/figures/energy_maps/` — VRE siting maps (Figure 1b–e)
+
+## Reproducing this Analysis
+
+### Quick start
+1. Download the Figshare archive (doi:10.26188/29604590) and unzip all contents into the `BESP_data_qld_2025/` folder inside the repository root.
+2. Open `Biodiversity_and_energy_system_planning_2024.Rproj` in RStudio — this sets the working directory automatically via the `here` package.
+3. Run the full pipeline:
+   ```r
+   source("_RUN_ALL.R")
+   ```
+4. Expected runtime: approximately 2 minutes on a modern laptop (default run from an empty `results/` directory, verified 2026-08-03 on R 4.4.2 / Windows 10 x64).
+
+### Platform requirements
+| Step | Tool required |
+|------|---------------|
+| All `_RUN_ALL.R` steps | R ≥ 4.4, Windows 10 x64 |
+| Figure 1a — biodiversity priority map | ArcGIS Pro; no script provided; source raster is `rankmap.tif` |
+| Figure 3 — transmission pipeline | R + existing TX shapefiles (included in Figshare data) |
+| Re-running Zonation from scratch | Zonation 5 (Windows) |
+| Regenerating GDB model outputs | `netzero_navigate` external codebase (not distributed) |
+
+### Figure and table reference
+| Output | Script | Key input | Tool |
+|--------|--------|-----------|------|
+| Table 1 (all MNES) | `Biodiversity_analysis/Mean_spp_scenario_coverage.R` | `feature_curves.csv` | R |
+| Table 1 (CE/EN) + line plot | `Figure_code/Critically_endangered_mean_coverage_and_line_plot.R` | `feature_curves.csv` | R |
+| Figure 1a (priority map) | — | `rankmap.tif` | ArcGIS Pro |
+| Figure 1b–e (VRE maps) | `Energy system and transmission analysis/domestic_export_map_iterations.R` | `tx1.gdb`, `tx2.gdb` | R |
+| Figure 2 (NPV) | `Figure_code/NPV_bar_plot.R` | `eplus_Domestic_NPV_figure.csv` | R |
+| Figure 3 (TX length) | Transmission pipeline — 4 scripts | `tx1.gdb`, `tx2.gdb`, TX shapefiles | R |
+| Figure 4 (cost increase) | `Figure_code/percent cost increase_line plot.R` | `cost_increase_results.csv` | R |
+| Supp. Fig 1D (Zonation curves) | `Figure_code/Zonation curves.R` | `feature_curves.csv` | R |
+| Supp. Fig 2 (zero coverage map) | `Biodiversity_analysis/zero_coverage_species.R` | species shapefiles† | R |
+| Supp. Fig 6 (exclusion barplot) | `Biodiversity_analysis/land_use_competition_QLD.R` → `Figure_code/exclusion_overlap_barplot.R` | `BV_exclusion_area_overlap.csv` | R |
+
+† See "What is not included" below.
+
+### The `overwrite_mode` flag
+Each script sets `overwrite_mode <- FALSE` near the top. With this default, if an output file already exists in `results/`, the script prints a message and skips recomputation — this is what makes the default run take approximately 2 minutes. Set `overwrite_mode <- TRUE` to force recalculation and overwrite existing outputs. Two scripts — `Mean_spp_scenario_coverage.R` and `NPV_bar_plot.R` — always recompute regardless of this flag.
+
+### What is not included in the Figshare deposit
+**Species distribution shapefiles**: `Biodiversity_analysis/zero_coverage_species.R` (Supp. Fig 2) requires individual species shapefiles in `BESP_data_qld_2025/Zonation_analysis/Zonation_MNES_shapefiles/shapefiles/`. These files are not in the Figshare deposit due to file size. The script will warn when they are absent and the supplementary figure will not be produced.
 
 ## File Size Information
 - **Total repository size**: ~7.8 GB
@@ -215,6 +257,8 @@ The scripts use the pacman manager. Missing libraries (e.g., sf, here, ggpattern
 CRS: GDA2020 / MGA Zone 56 (EPSG:7856).
 
 Version History
+v1.3 (Aug 2026): Reproducibility fixes — corrected script path references in `_paths.R`, `land_use_competition_QLD.R`, `zero_coverage_species.R`, `tx_run_all.R`, and `domestic_export_map_iterations.R`; fixed `minimal_settings.z5` Zonation path; renamed two misspelled scripts; added wind/PV exclusion rasters to deposit; added "Reproducing this Analysis" section.
+
 v1.2 (May 2026): Replaced `RZ_area_outside_exclusions_and_ECNES.R` with `land_use_competition_QLD.R` as the data source for Supp. Fig 6. New script uses raster cell counting (terra) instead of vector intersection (sf) for faster, reproducible exclusion area summaries. Pipeline updated in `_RUN_ALL.R`.
 
 v1.1 (Jan 2026): Updated to full R Project structure; implemented here for relative pathing; added automated unzipping logic and LLM-assisted code optimization.
@@ -225,5 +269,5 @@ Author: Andrew Rogers
 
 LLMs used: Claude AI and Gemini
 
-Last Updated: May 2026
+Last Updated: August 2026
 
