@@ -300,20 +300,21 @@ System requirements:
 
 Setup Instructions
 
-1. Download the Figshare data and unzip its contents into the BESP_data_qld_2025/
-   folder inside the repository root. The folder structure should match the tree above.
+1. Download the Figshare archive (doi:10.26188/29604590) and unzip it. The download
+   contains a folder named:
+     supplementary data_biodiversity and energy system planning_qld_2025
+   Rename that folder to BESP_data_qld_2025 and place it inside the repository root
+   (alongside _RUN_ALL.R). The GDB files (QLD_v202412_eplus_tx1.gdb and tx2) are
+   pre-extracted folders in Energy_system_model_outputs/Energy_system_analysis_scenarios/
+   and are ready to use without further unzipping.
 
-2. Unzip the GDB files before running the spatial mapping script:
-     BESP_data_qld_2025/QLD_v202412_eplus_tx1.gdb.zip
-     BESP_data_qld_2025/QLD_v202412_eplus_tx2.gdb.zip
-
-3. Open Biodiversity_and_energy_system_planning_2024.Rproj in RStudio.
+2. Open Biodiversity_and_energy_system_planning_2024.Rproj in RStudio.
    This sets the working directory automatically via the here package.
 
-4. Run the full pipeline:
+3. Run the full pipeline:
      source("_RUN_ALL.R")
 
-   Or run individual scripts from Figure_code/:
+   Or run individual scripts:
      source(here::here("Figure_code", "Critically_endangered_mean_coverage_and_line_plot.R"))
      source(here::here("Figure_code", "Zonation curves.R"))
      source(here::here("Figure_code", "percent cost increase_line plot.R"))
@@ -325,8 +326,9 @@ Reproducing this Analysis
 --------------------------
 
 Quick start
-1. Download the Figshare archive (doi:10.26188/29604590) and unzip all contents
-   into the BESP_data_qld_2025/ folder inside the repository root.
+1. Download the Figshare archive (doi:10.26188/29604590) and unzip it. The download
+   contains a folder named "supplementary data_biodiversity and energy system planning_qld_2025";
+   rename it to BESP_data_qld_2025 and place it inside the repository root.
 2. Open Biodiversity_and_energy_system_planning_2024.Rproj in RStudio -- this sets
    the working directory automatically via the here package.
 3. Run the full pipeline:
@@ -419,16 +421,17 @@ To re-run the analysis from scratch:
 
 1. Download and install Zonation 5: https://zonationteam.github.io/Zonation5/
 
-2. Unzip the feature rasters:
-     BESP_data_qld_2025/Zonation_analysis/Zonation_QLD_biodiversity_feature_rasters.zip
+2. The biodiversity feature rasters are already extracted at:
+     BESP_data_qld_2025/Zonation_analysis/Zonation_QLD_biodiversity_feature_rasters/QLD_250m_500spp/
+   No unzipping required.
 
 3. Update file paths in the run files located at:
      BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/
    Replace "User_directory" in features_example1.txt and minimal_settings.z5 with the
    full path to your BESP_data_qld_2025/Zonation_analysis/ folder.
 
-4. Run the analysis by executing z5_example1.cmd. If paths are correct and feature
-   rasters are unzipped, this will overwrite the outputs in the Zonation_output folder.
+4. Run the analysis by executing z5_example1.cmd. If paths are correct this will
+   overwrite the outputs in the Zonation_output folder.
 
 
 Technical Notes

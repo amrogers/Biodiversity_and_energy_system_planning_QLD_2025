@@ -32,10 +32,11 @@ Biodiversity_and_energy_system_planning_2024/
 ## Data Files Description
 
 ### Energy System Data
-- **QLD_v202412_eplus_tx1.gdb.zip**: Energy infrastructure scenarios under transmission option 1
-- **QLD_v202412_eplus_tx2.gdb.zip**: Energy infrastructure scenarios under transmission option 2
+- **QLD_v202412_eplus_tx1.gdb**: Energy infrastructure scenarios under transmission option 1 (ESRI File Geodatabase folder; `.gdb.zip` archive also included)
+- **QLD_v202412_eplus_tx2.gdb**: Energy infrastructure scenarios under transmission option 2 (ESRI File Geodatabase folder; `.gdb.zip` archive also included)
 - **cost_increase_results.csv**: Cost increases under different biodiversity protection levels
-- **eplus_Domestic_NPV_2025.xlsx**: Net present value analysis for domestic energy projects
+- **eplus_Domestic_NPV_figure.csv**: Net present value data used directly by `NPV_bar_plot.R`
+- **eplus_Domestic_NPV_2025.xlsx**: Full NPV dataset (source for the figure CSV above)
 
 ### Conservation Data
 - **feature_curves.csv**: Zonation performance curves for 524+ conservation features
@@ -45,12 +46,11 @@ Biodiversity_and_energy_system_planning_2024/
 ### Spatial Exclusions
 - **Supplementary table_other spatial exclusions.xlsx**: Non-biodiversity spatial constraints
 
-###Zonation analysis
-### 1. Download and install Zonation 5: https://zonationteam.github.io/Zonation5/
-### 2. Update the features_example1.txt and minimal_settings.Z5 files. 
-	- Change the file paths: replace User_directory in the file paths to the download location. this should be in the "download_location"\Biodiversity_and_energy_system_planning_2024\data
-### 3. Unzip the Zonation_QLD_biodiversity_feature_rasters.zip file in the Zonation analysis folder
-### 4. Run the z5_example1 file. if the files paths are correct and the feature rasters are unzipped this will run the zonation analysis and overwrite the outputs in the zonation output folder. 
+### Re-running the Zonation analysis
+1. Download and install Zonation 5: https://zonationteam.github.io/Zonation5/
+2. Update `features_example1.txt` and `minimal_settings.z5` in `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/`: replace `User_directory` with the full path to your `BESP_data_qld_2025/Zonation_analysis/` folder.
+3. The biodiversity feature rasters are already extracted at `BESP_data_qld_2025/Zonation_analysis/Zonation_QLD_biodiversity_feature_rasters/QLD_250m_500spp/`.
+4. Run `z5_example1.cmd`. If paths are correct this will overwrite the outputs in the `Zonation_output/` folder.
 
 
 ## Analysis Scripts
@@ -131,7 +131,7 @@ source("Figure_code/exclusion_overlap_barplot.R")
 
 **Note**: Figure 1a (biodiversity prioritisation map) was produced in ArcGIS Pro using the Zonation output raster as its source. The source file is `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/out_example1/rankmap.tif` (accessible via `paths$rankmap` in `_paths.R`).
 
-**Input**: `BESP_data_qld_2025/Energy_system_model_outputs/Energy_system_analysis_scenarios/QLD_v202412_eplus_tx1/tx2.gdb` (unzip from `.gdb.zip` first)
+**Input**: `BESP_data_qld_2025/Energy_system_model_outputs/Energy_system_analysis_scenarios/QLD_v202412_eplus_tx1.gdb` (and `tx2.gdb`)
 **Outputs**:
 - `results/figures/energy_maps/shapefiles_tx1/combined_renewables_2050_threshold_N.shp`
 - `results/figures/energy_maps/domestic_maps_tx1/domestic_layer_map_[threshold]_[year].png`
@@ -139,7 +139,6 @@ source("Figure_code/exclusion_overlap_barplot.R")
 
 **Usage**:
 ```r
-# Ensure GDB files are unzipped before running
 source("Energy system and transmission analysis/domestic_export_map_iterations.R")
 ```
 
@@ -154,19 +153,9 @@ Required R packages (automatically installed by scripts):
 
 ### Setup Instructions
 
-1. **Download and Extract**:
-   ```
-   # Download all files to a local directory
-   # Extract GDB files from ZIP archives:
-   unzip Energy_system_analysis_scenarios/QLD_v202412_eplus_tx1.gdb.zip
-   unzip Energy_system_analysis_scenarios/QLD_v202412_eplus_tx2.gdb.zip
-   ```
+1. **Download and extract**: Download the Figshare archive (doi:10.26188/29604590). Unzip it — you will find a folder named `supplementary data_biodiversity and energy system planning_qld_2025`. Rename that folder to `BESP_data_qld_2025` and place it inside the repository root (alongside `_RUN_ALL.R`).
 
-2. **Set Working Directory**:
-   ```r
-   # In R, navigate to the supplementary data folder
-   setwd("path/to/supplementary_data")
-   ```
+2. **Open the R Project**: Open `Biodiversity_and_energy_system_planning_2024.Rproj` in RStudio. This sets the working directory automatically.
 
 3. **Run Analysis Scripts**:
    ```r
@@ -192,7 +181,7 @@ All scripts write into the `results/` directory:
 ## Reproducing this Analysis
 
 ### Quick start
-1. Download the Figshare archive (doi:10.26188/29604590) and unzip all contents into the `BESP_data_qld_2025/` folder inside the repository root.
+1. Download the Figshare archive (doi:10.26188/29604590) and unzip it. The download contains a folder named `supplementary data_biodiversity and energy system planning_qld_2025`; rename it to `BESP_data_qld_2025` and place it inside the repository root (alongside `_RUN_ALL.R`).
 2. Open `Biodiversity_and_energy_system_planning_2024.Rproj` in RStudio — this sets the working directory automatically via the `here` package.
 3. Run the full pipeline:
    ```r
