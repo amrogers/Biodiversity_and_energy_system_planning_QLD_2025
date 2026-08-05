@@ -18,7 +18,7 @@ if (file.exists(local_override)) {
 }
 
 # --- USER CONTROL SETTINGS ---
-overwrite_mode <- FALSE
+overwrite_mode <- TRUE
 
 # =============================================================================
 # Setup and Path Configuration
@@ -37,7 +37,7 @@ output_plot   <- file.path(here("results", "figures"), "CE_EN_mean_coverage_plot
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
 # Target rank values
-target_ranks <- c(0.10, 0.30, 0.50, 0.70, 0.84)
+target_ranks <- c(0.10, 0.30, 0.50, 0.70, 0.87)
 
 # =============================================================================
 # Smart Execution Logic

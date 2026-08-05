@@ -88,7 +88,7 @@ if (file.exists(output_file) && !overwrite_mode) {
       `Actual rank used`               = actual_rank,
       `N species`                      = length(species_vals),
       `Average distribution coverage`  = stats["mean"],
-      `Species with full coverage`     = sum(species_vals == 1.0, na.rm = TRUE),
+      `Species with >=99% coverage`    = sum(species_vals >= 0.99, na.rm = TRUE),
       `Species with no coverage`       = sum(species_vals == 0.0, na.rm = TRUE),
       `95 CI (lower)`                  = stats["ci_lower"],
       `95 CI (upper)`                  = stats["ci_upper"]
