@@ -18,7 +18,7 @@ if (file.exists(local_override)) {
 }
 
 # --- USER CONTROL SETTINGS ---
-overwrite_mode <- TRUE
+overwrite_mode <- FALSE
 
 # =============================================================================
 # Setup and Path Configuration

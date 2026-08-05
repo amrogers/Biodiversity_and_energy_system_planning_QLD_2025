@@ -63,6 +63,11 @@ Biodiversity_and_energy_system_planning_2024/
 
 **Scenarios**: BAU (14% of Qld), Top 30%, Top 50%, Top 70%, Top 90%
 
+**Note**: The "Species with >=99% coverage" column counts a species as covered
+if its modelled distribution reaches at least 99% (not exactly 100%) at the
+scenario's threshold rank. This is the same definition used for the
+manuscript body text and abstract.
+
 **Usage**:
 ```r
 source("Biodiversity_analysis/Mean_spp_scenario_coverage.R")

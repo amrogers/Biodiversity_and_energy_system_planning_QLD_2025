@@ -358,6 +358,10 @@ Figure and table reference
     Script:  Biodiversity_analysis/Mean_spp_scenario_coverage.R
     Input:   feature_curves.csv
     Tool:    R
+    Note:    "Species with >=99% coverage" counts a species as covered if its
+             modelled distribution reaches at least 99% (not exactly 100%) at
+             the scenario's threshold rank -- same definition used in the
+             manuscript body text and abstract.
 
   Table 1 (CE/EN) + line plot
     Script:  Figure_code/Critically_endangered_mean_coverage_and_line_plot.R
