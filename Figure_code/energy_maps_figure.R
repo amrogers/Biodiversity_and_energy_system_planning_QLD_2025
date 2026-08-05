@@ -1,171 +1,104 @@
 # =============================================================================
-# VRE Map Figure Generation
+# Figure 1b-e: VRE siting maps (tx1, 2050) -- verification step
 # =============================================================================
-# Reads combined-renewables shapefiles from results/figures/energy_maps/shapefiles_tx*/
-# and writes domestic/export PNG maps to results/figures/energy_maps/.
+# Sourced by _RUN_ALL.R.
 #
-# Can be run standalone or sourced from _RUN_ALL.R.
-# When sourced from _RUN_ALL.R, inherits tx2_enabled and output_root if already set.
+# The Figure 1b-e panels are high-resolution PNG maps (4500 x 4500 px) produced
+# by:
+#   Energy system and transmission analysis/domestic_export_map_iterations.R
 #
-# Plotting logic (load_base_map, create_plot, map generation loop) is shared
-# verbatim with domestic_export_map_iterations.R.
+# They are stored in the analysis output folder:
+#   <data_root>/Energy_system_model_outputs/Electricity_Transmission_Lines/
+#     Tx_outputs/domestic_maps_tx1/
+#
+# This step verifies that all six maps are present and prints their full file
+# paths so a reviewer can open them directly. The maps are not rendered in the
+# R plot pane -- they are too large to display usefully, and repeated raster
+# rendering inside source() is unreliable in the RStudio graphics device.
+#
+# To regenerate the maps from the source GDBs, set regenerate_fig1 <- TRUE in
+# _RUN_ALL.R. This takes 30+ minutes and requires the full data download.
 #
 # Author: Andrew Rogers
-# LLMs used: Claude AI and Gemini
-# Date: Aug 2026
 # =============================================================================
 
 if (!require(pacman)) install.packages("pacman")
-pacman::p_load(sf, dplyr, ggplot2, ozmaps, purrr, scales, here)
+pacman::p_load(here)
 
+# _paths.R is not sourced in display_mode, so source it here.
 source(here::here("_paths.R"))
 local_override <- here::here("_paths_local.R")
-if (file.exists(local_override)) {
-  source(local_override)
-  cat(">>> Using local path overrides from _paths_local.R\n")
-}
+if (file.exists(local_override)) source(local_override)
 
-# output_root may already be set if called after domestic_export_map_iterations.R
-if (!exists("output_root")) output_root <- here("results", "figures", "energy_maps")
-if (!dir.exists(output_root)) dir.create(output_root, recursive = TRUE)
+if (!exists("regenerate_fig1")) regenerate_fig1 <- FALSE
 
-# tx2_enabled may be set by _RUN_ALL.R; default FALSE (TX1 only appears in manuscript)
-if (!exists("tx2_enabled")) tx2_enabled <- FALSE
+fig1_expected <- sprintf("domestic_layer_map_%d_2050.png",
+                         c(0, 10, 30, 50, 70, 90))
 
-thresholds             <- c(0, 10, 30, 50, 70, 90)
-years                  <- c(2030, 2040, 2050)
-transmission_scenarios <- if (tx2_enabled) c("tx1", "tx2") else "tx1"
+# Primary location: the analysis output folder (where the manuscript maps live).
+# Fallback: results/, where domestic_export_map_iterations.R writes if rerun.
+fig1_dirs <- c(
+  "analysis folder" = file.path(paths$tx_outputs, "domestic_maps_tx1"),
+  "results folder"  = here("results", "figures", "energy_maps",
+                           "domestic_maps_tx1")
+)
 
-# =============================================================================
-# Mapping Functions
-# (Copied verbatim from domestic_export_map_iterations.R -- do not alter independently)
-# =============================================================================
-
-load_base_map <- function() {
-  tryCatch({
-    aus_states   <- ozmaps::ozmap_states
-    qld_boundary <- aus_states[aus_states$NAME == "Queensland", ]
-    return(qld_boundary)
-  }, error = function(e) {
-    cat("Warning: Could not load base map data:", e$message, "\n")
-    return(NULL)
-  })
-}
-
-create_plot <- function(tx_scenario, year, threshold, is_domestic = TRUE) {
-
-  shp_folder <- file.path(output_root, paste0("shapefiles_", tx_scenario))
-  shp_file   <- file.path(shp_folder,
-                           sprintf("combined_renewables_2050_threshold_%d.shp", threshold))
-
-  if (!file.exists(shp_file)) {
-    cat("Warning: Shapefile not found:", shp_file, "\n")
-    return(NULL)
+find_fig1 <- function() {
+  for (lbl in names(fig1_dirs)) {
+    d <- fig1_dirs[[lbl]]
+    if (dir.exists(d) && all(file.exists(file.path(d, fig1_expected)))) {
+      return(list(dir = d, label = lbl, complete = TRUE))
+    }
   }
-
-  # Skip if PNG already exists
-  map_type <- ifelse(is_domestic, "domestic", "export")
-  png_name <- sprintf("%s_layer_map_%d_%d.png", map_type, threshold, year)
-  png_path <- file.path(output_root, paste0(map_type, "_maps_", tx_scenario), png_name)
-
-  if (file.exists(png_path)) {
-    cat("   - Map already exists:", png_name, "\n")
-    return(NULL)
-  }
-
-  qld_boundary <- load_base_map()
-  if (is.null(qld_boundary)) return(NULL)
-
-  base_plot <- ggplot() +
-    geom_sf(data = qld_boundary, fill = "white", color = "black", size = 0.5) +
-    theme_minimal() +
-    theme(
-      axis.text       = element_blank(),
-      axis.ticks      = element_blank(),
-      panel.grid      = element_blank(),
-      plot.title      = element_text(size = 16, face = "bold"),
-      plot.subtitle   = element_text(size = 12),
-      legend.position = "bottom"
-    )
-
-  tryCatch({
-    infrastructure_data <- st_read(shp_file, quiet = TRUE)
-
-    if ("domestic" %in% colnames(infrastructure_data)) {
-      filtered_data <- infrastructure_data[infrastructure_data$domestic == as.integer(is_domestic), ]
-    } else {
-      filtered_data <- infrastructure_data
-      cat("Warning: No 'domestic' column found, showing all data\n")
-    }
-
-    if (nrow(filtered_data) > 0) {
-      tech_colors <- c(
-        "solar_pv"      = "#FFA500",
-        "wind"          = "lightblue",
-        "offshore_wind" = "blue",
-        "other"         = "#808080"
-      )
-      base_plot <- base_plot +
-        geom_sf(data = filtered_data,
-                aes(fill = technology, color = technology),
-                alpha = 0.7, size = 0.1) +
-        scale_fill_manual(values  = tech_colors, name = "Technology") +
-        scale_color_manual(values = tech_colors, name = "Technology")
-    }
-
-    map_label <- ifelse(is_domestic, "Domestic", "Export")
-    base_plot <- base_plot +
-      labs(
-        title    = sprintf("%s Energy Infrastructure - %s", map_label, toupper(tx_scenario)),
-        subtitle = sprintf("Threshold: %d%%, Year: %d", threshold, year),
-        caption  = "Source: Energy system modeling results"
-      )
-
-  }, error = function(e) {
-    cat("Error loading infrastructure data:", e$message, "\n")
-  })
-
-  return(base_plot)
+  # Nothing complete -- report on the primary location.
+  list(dir = fig1_dirs[[1]], label = names(fig1_dirs)[1], complete = FALSE)
 }
 
-# =============================================================================
-# Generate Maps for All Scenarios
-# =============================================================================
+fig1 <- find_fig1()
 
-cat("\n=== Generating Maps ===\n")
-
-for (tx_scenario in transmission_scenarios) {
-  cat(sprintf("Creating maps for %s scenario...\n", tx_scenario))
-
-  domestic_output <- file.path(output_root, paste0("domestic_maps_", tx_scenario))
-  export_output   <- file.path(output_root, paste0("export_maps_",   tx_scenario))
-
-  dir.create(domestic_output, recursive = TRUE, showWarnings = FALSE)
-  dir.create(export_output,   recursive = TRUE, showWarnings = FALSE)
-
-  for (year in years) {
-    for (threshold in thresholds) {
-      cat(sprintf("Creating maps for threshold %d%%, year %d...\n", threshold, year))
-
-      domestic_plot <- create_plot(tx_scenario, year, threshold, is_domestic = TRUE)
-      if (!is.null(domestic_plot)) {
-        out_path <- file.path(domestic_output,
-                              sprintf("domestic_layer_map_%d_%d.png", threshold, year))
-        ggsave(domestic_plot, filename = out_path,
-               width = 15, height = 15, units = "in", dpi = 300, bg = "white")
-        cat("Domestic map saved to:", out_path, "\n")
-      }
-
-      export_plot <- create_plot(tx_scenario, year, threshold, is_domestic = FALSE)
-      if (!is.null(export_plot)) {
-        out_path <- file.path(export_output,
-                              sprintf("export_layer_map_%d_%d.png", threshold, year))
-        ggsave(export_plot, filename = out_path,
-               width = 15, height = 15, units = "in", dpi = 300, bg = "white")
-        cat("Export map saved to:", out_path, "\n")
-      }
-    }
+# --- Optional regeneration -------------------------------------------------
+if (regenerate_fig1 || !fig1$complete) {
+  if (regenerate_fig1) {
+    cat("  regenerate_fig1 = TRUE -- rebuilding maps from GDBs.\n")
+    cat("  WARNING: this takes 30+ minutes and needs the full data download.\n")
+    source(here("Energy system and transmission analysis",
+                "domestic_export_map_iterations.R"))
+    fig1 <- find_fig1()
+  } else {
+    cat("  One or more maps are missing.\n")
+    cat("  Set regenerate_fig1 <- TRUE in _RUN_ALL.R to rebuild from the GDBs\n")
+    cat("  (30+ minutes; requires the full data download).\n\n")
   }
 }
 
-cat("\nMap generation complete.\n")
+# --- Report ----------------------------------------------------------------
+cat("  Location:", fig1$label, "\n")
+cat("  Folder:  ", normalizePath(fig1$dir, winslash = "/", mustWork = FALSE), "\n\n")
+
+fig1_paths  <- file.path(fig1$dir, fig1_expected)
+fig1_exists <- file.exists(fig1_paths)
+fig1_size   <- ifelse(fig1_exists,
+                      sprintf("%.0f KB", file.size(fig1_paths) / 1024),
+                      "--")
+
+fig1_report <- data.frame(
+  Map     = fig1_expected,
+  Present = ifelse(fig1_exists, "yes", "MISSING"),
+  Size    = fig1_size,
+  stringsAsFactors = FALSE
+)
+print(fig1_report, row.names = FALSE)
+
+cat("\n  Full paths:\n")
+for (p in fig1_paths[fig1_exists]) {
+  cat("   ", normalizePath(p, winslash = "/", mustWork = FALSE), "\n")
+}
+
+cat(sprintf("\n  %d of %d maps present.\n", sum(fig1_exists), length(fig1_expected)))
+
+if (!all(fig1_exists)) {
+  stop(sprintf("Figure 1b-e: %d of %d maps missing from %s",
+               sum(!fig1_exists), length(fig1_expected), fig1$dir))
+}
+
+cat("  Figure 1b-e verified. Open the paths above to view the maps.\n")

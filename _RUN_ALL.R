@@ -9,7 +9,7 @@
 #
 #   Step 1 -- Main manuscript figures and tables:
 #     Figure 1a  -- Biodiversity prioritisation map (ArcGIS Pro -- path printed)
-#     Figure 1b-e -- VRE siting maps (three-tier: see below)
+#     Figure 1b-e -- VRE siting maps (see below)
 #     Table 1    -- All-MNES scenario coverage (Mean_spp_scenario_coverage.R)
 #     Table 1    -- CE/EN mean coverage (data table path printed to console)
 #     Figure 2   -- NPV bar chart (NPV_bar_plot.R)
@@ -21,13 +21,11 @@
 #     Supp. Fig 2  -- Zero-coverage species map (zero_coverage_species.R)
 #     Supp. Fig 6  -- Exclusion area barplot (land_use_competition_QLD.R -> exclusion_overlap_barplot.R)
 #
-# Figure 1b-e three-tier fallback (controlled by overwrite_mode / tx2_enabled):
-#   Tier 1 -- Final PNGs present and overwrite_mode FALSE: SKIPPED (maps exist)
-#   Tier 2 -- Shapefiles present, PNGs absent, overwrite_mode FALSE:
-#             source energy_maps_figure.R -> COMPUTED (from cached shapefiles)
-#   Tier 3 -- Neither present, or overwrite_mode TRUE:
-#             source domestic_export_map_iterations.R then energy_maps_figure.R
-#             -> COMPUTED (full GDB processing) -- WARNING: may take 30+ minutes
+# Figure 1b-e (energy_maps_figure.R):
+#   Verifies the six tx1 2050 maps exist in the analysis output folder
+#   (Tx_outputs/domestic_maps_tx1/) and prints their full file paths.
+#   The maps are 4500 x 4500 px and are opened externally, not plotted in R.
+#   Set regenerate_fig1 = TRUE to rebuild them from the GDBs (30+ minutes).
 #
 # Set display_mode = TRUE to review existing outputs without rerunning anything.
 # =============================================================================
@@ -40,17 +38,17 @@ pacman::p_load(here, magick, readr)
 run_step1      <- TRUE   # Paper figures (ignored when display_mode = TRUE)
 run_step2      <- TRUE   # Supplementary figures (ignored when display_mode = TRUE)
 display_mode   <- FALSE  # TRUE = show existing outputs; FALSE = run scripts and save
-overwrite_mode <- FALSE  # TRUE = always run full pipeline (Tier 3) for Figure 1b-e
-tx2_enabled    <- FALSE  # TRUE = also process TX2 maps (only TX1 appears in manuscript)
+regenerate_fig1 <- FALSE # TRUE = rebuild Figure 1b-e maps from GDBs (30+ min)
 
 cat("\n Starting Full Analysis Pipeline...\n")
 start_time <- Sys.time()
 
 # =============================================================================
-# 2. DEFINE PIPELINE STEPS (Figure 1b-e handled separately via three-tier fallback)
+# 2. DEFINE PIPELINE STEPS
 # =============================================================================
 
 pipeline_step1 <- list(
+  "Figure 1b-e (VRE maps)" = here("Figure_code", "energy_maps_figure.R"),
   "Table 1 (all MNES)"   = here("Biodiversity_analysis", "Mean_spp_scenario_coverage.R"),
   "Figure 2 (NPV)"       = here("Figure_code", "NPV_bar_plot.R"),
   "Figure 3 (TX length)" = here("Figure_code", "tx_length_figure.R"),
@@ -76,8 +74,8 @@ outputs_step1 <- list(
     note = "Produced in ArcGIS Pro from Zonation rankmap.tif -- no R output."
   ),
   "Figure 1b-e (VRE maps)"    = list(
-    path = here("results", "figures", "energy_maps"),
-    type = "folder"
+    path = here("Figure_code", "energy_maps_figure.R"),
+    type = "source"
   ),
   "Table 1 (all MNES)"        = list(
     path = here("results", "tables", "scenario_coverage_results.csv"),
@@ -142,6 +140,17 @@ display_results <- function(outputs, step_label) {
       next
     }
 
+    if (type == "source") {
+      tryCatch({
+        source(p)
+        log$Status[i] <- "Displayed"
+      }, error = function(e) {
+        cat("  Could not display:", e$message, "\n")
+        log$Status[i] <<- paste("Failed:", e$message)
+      })
+      next
+    }
+
     if (type == "folder") {
       if (dir.exists(p)) {
         pngs <- list.files(p, pattern = "\\.png$", recursive = TRUE, full.names = FALSE)
@@ -201,9 +210,11 @@ run_pipeline <- function(pipeline, step_label) {
         source(step_path)
         log$Status[i] <- "Success"
       }, error = function(e) {
+        cat(sprintf("  ERROR: %s\n", e$message))
         log$Status[i] <<- paste("Failed:", e$message)
       })
     } else {
+      cat(sprintf("  File not found: %s\n", step_path))
       log$Status[i] <- "File Not Found"
     }
     log$Time[i] <- format(Sys.time(), "%H:%M:%S")
@@ -250,52 +261,7 @@ if (display_mode) {
     cat("  To regenerate, run: Figure_code/Critically_endangered_mean_coverage_and_line_plot.R\n")
     cat("  Status: Skipped (pre-computed)\n")
 
-    # --- Figure 1b-e: Three-tier fallback ---
-    cat("\n--- Step 1: Figure 1b-e (VRE maps) ---\n")
-    tx_to_check <- if (tx2_enabled) c("tx1", "tx2") else "tx1"
-
-    check_pngs <- function(tx) {
-      d <- here("results", "figures", "energy_maps", paste0("domestic_maps_", tx))
-      dir.exists(d) && length(list.files(d, pattern = "\\.png$")) > 0
-    }
-    check_shps <- function(tx) {
-      d <- here("results", "figures", "energy_maps", paste0("shapefiles_", tx))
-      dir.exists(d) && length(list.files(d, pattern = "\\.shp$")) > 0
-    }
-    pngs_present <- all(sapply(tx_to_check, check_pngs))
-    shps_present <- all(sapply(tx_to_check, check_shps))
-
-    vre_t0 <- Sys.time()
-    vre_status <- tryCatch({
-      if (!overwrite_mode && pngs_present) {
-        cat("  Final PNGs found -- skipping.\n")
-        "SKIPPED (maps exist)"
-      } else if (!overwrite_mode && shps_present) {
-        cat("  Shapefiles found; rendering PNGs only (Tier 2)...\n")
-        source(here("Figure_code", "energy_maps_figure.R"))
-        "COMPUTED (from cached shapefiles)"
-      } else {
-        cat("  WARNING: No cached shapefiles. Full GDB processing required.\n")
-        cat("  This may take 30+ minutes depending on hardware.\n")
-        source(here("Energy system and transmission analysis",
-                    "domestic_export_map_iterations.R"))
-        source(here("Figure_code", "energy_maps_figure.R"))
-        "COMPUTED (full GDB processing)"
-      }
-    }, error = function(e) paste("Failed:", e$message))
-
-    vre_elapsed <- round(as.numeric(difftime(Sys.time(), vre_t0, units = "mins")), 2)
-    cat(sprintf("  Elapsed: %.2f min\n", vre_elapsed))
-
-    vre_log_row <- data.frame(
-      Step   = "Figure 1b-e (VRE maps)",
-      Status = sprintf("%s (%.2f min)", vre_status, vre_elapsed),
-      Time   = format(Sys.time(), "%H:%M:%S"),
-      stringsAsFactors = FALSE
-    )
-
-    step1_rest <- run_pipeline(pipeline_step1, "Step 1")
-    step1_log  <- rbind(vre_log_row, step1_rest)
+    step1_log <- run_pipeline(pipeline_step1, "Step 1")
     all_logs[["Step 1: Main Manuscript Figures & Tables"]] <- step1_log
   }
 
