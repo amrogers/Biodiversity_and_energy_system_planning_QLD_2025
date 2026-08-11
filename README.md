@@ -12,21 +12,44 @@ https://figshare.unimelb.edu.au/articles/dataset/Supplementary_Data_Biodiversity
 
 Recommended citation: Rogers, Andrew (2025). Supplementary Data: Biodiversity and Energy System Planning - Queensland 2025. The University of Melbourne. Dataset. https://doi.org/10.26188/29604590.v1
 
+## What Figshare Delivers
+
+The Figshare deposit is **two separate downloads**. Both are placed inside the cloned
+GitHub repository, at the same level as `_RUN_ALL.R`:
+
+| Download | Placement | Contents |
+|---|---|---|
+| `BESP_data_qld_2025` | `<repo>/BESP_data_qld_2025/` (same relative location as in this repo) | Raw input data: `Energy_system_model_outputs/`, `Zonation_analysis/` |
+| `results` | `<repo>/results/` (repo root, alongside `BESP_data_qld_2025/`) | **Ships pre-populated** with every figure and table already generated. `source("_RUN_ALL.R")` will detect these and redraw them (~2 min) instead of recomputing from scratch. Delete or empty `results/` to force a full recompute (60+ minutes for the spatial steps). |
+
+**Wrapper directories:** depending on how each item downloads and unzips, you may end
+up with an extra nested folder (e.g. `BESP_data_qld_2025/BESP_data_qld_2025/...` or a
+folder named after the archive). If so, move the *inner* folder up one level so that
+`BESP_data_qld_2025/` and `results/` each sit directly in the repository root — verify
+against the tree below before running anything.
+
+The code folders (`Biodiversity_analysis/`, `Figure_code/`, `Energy system and
+transmission analysis/`) are **not** part of the Figshare deposit — they come from the
+GitHub repository itself.
+
 ## Repository Structure
 
 Biodiversity_and_energy_system_planning_2024/
 ├── Biodiversity_and_energy_system_planning_2024.Rproj  # <-- Start here
-├── data/                                  # Place Figshare ZIP contents here
-│   ├── Energy_system_model_outputs/       # Processed CSV/XLSX files
-│   ├── Zonation_analysis/                 # Zonation run files and curves
-│   └── [.gdb.zip files from Figshare]     # Large spatial databases
+├── _RUN_ALL.R                             # Master runner
+├── _paths.R                               # Central path management
+├── BESP_data_qld_2025/                    # <-- Figshare download 1 goes here
+│   ├── Energy_system_model_outputs/       # Processed CSV/XLSX files, GDBs
+│   └── Zonation_analysis/                 # Zonation run files and curves
 ├── Figure_code/                           # Figure scripts
 ├── Biodiversity_analysis/                 # Biodiversity analysis scripts
 ├── Energy system and transmission analysis/ # Transmission pipeline scripts
-├── results/                               # Created automatically by scripts
+├── results/                               # <-- Figshare download 2 goes here (pre-populated)
 │   ├── figures/                           # PNG/PDF outputs
 │   ├── tables/                            # Summary CSV outputs
-│   └── transmission_scenario_comparison/  # Spatial overlap stats
+│   ├── zonation_figures/                  # Zonation curve/rankmap outputs
+│   ├── zero_coverage/                     # Supp. Fig 2 outputs
+│   └── transmission_processing/           # TX pipeline intermediates
 └── README.md
 
 ## Data Files Description
@@ -46,10 +69,32 @@ Biodiversity_and_energy_system_planning_2024/
 ### Spatial Exclusions
 - **Supplementary table_other spatial exclusions.xlsx**: Non-biodiversity spatial constraints
 
+## Zip Archives in the Deposit
+
+Every `.zip` file in `BESP_data_qld_2025/` and how it gets extracted:
+
+| Archive | Location | Extraction |
+|---|---|---|
+| `QLD_v202412_eplus_tx1.gdb.zip` | `Energy_system_model_outputs/Energy_system_analysis_scenarios/` | **Automatic.** `Energy system and transmission analysis/domestic_export_map_iterations.R` extracts it on first run if `QLD_v202412_eplus_tx1.gdb/` is not already present. No manual action needed. |
+| `QLD_v202412_eplus_tx2.gdb.zip` | same folder | **Automatic**, same script, same mechanism. |
+| `Zonation_QLD_biodiversity_feature_rasters.zip` | `Zonation_analysis/` | **Manual.** No script extracts this — it is only needed if you re-run Zonation from scratch (see "Re-running the Zonation analysis" below). Unzip it yourself before attempting a Zonation re-run; the R pipeline (`_RUN_ALL.R`) never reads it. |
+
+Expected disk space after extraction (zips are kept after extracting, not deleted —
+extracted size is *in addition to* the zip):
+
+| Archive | Zipped | Extracted |
+|---|---|---|
+| `QLD_v202412_eplus_tx1.gdb.zip` | 1.10 GB | ~1.1 GB |
+| `QLD_v202412_eplus_tx2.gdb.zip` | 2.85 GB | ~0.96 GB |
+| `Zonation_QLD_biodiversity_feature_rasters.zip` (only if manually unzipped) | 81 MB | ~730 MB |
+
+Allow roughly an extra 2 GB free for the two GDBs once auto-extracted, plus ~730 MB
+more if you unzip the Zonation rasters for a from-scratch Zonation run.
+
 ### Re-running the Zonation analysis
 1. Download and install Zonation 5: https://zonationteam.github.io/Zonation5/
 2. Update `features_example1.txt` and `minimal_settings.z5` in `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/`: replace `User_directory` with the full path to your `BESP_data_qld_2025/Zonation_analysis/` folder.
-3. The biodiversity feature rasters are already extracted at `BESP_data_qld_2025/Zonation_analysis/Zonation_QLD_biodiversity_feature_rasters/QLD_250m_500spp/`.
+3. Unzip `BESP_data_qld_2025/Zonation_analysis/Zonation_QLD_biodiversity_feature_rasters.zip` yourself (no script does this). After extracting, the biodiversity feature rasters should be at `BESP_data_qld_2025/Zonation_analysis/Zonation_QLD_biodiversity_feature_rasters/QLD_250m_500spp/`.
 4. Run `z5_example1.cmd`. If paths are correct this will overwrite the outputs in the `Zonation_output/` folder.
 
 
@@ -158,7 +203,7 @@ Required R packages (automatically installed by scripts):
 
 ### Setup Instructions
 
-1. **Download and extract**: Download the Figshare archive (doi:10.26188/29604590). Unzip it — you will find a folder named `supplementary data_biodiversity and energy system planning_qld_2025`. Rename that folder to `BESP_data_qld_2025` and place it inside the repository root (alongside `_RUN_ALL.R`).
+1. **Download and place both Figshare downloads**: Download both items from the Figshare deposit (doi:10.26188/29604590) — `BESP_data_qld_2025` and `results`. Unzip each and place them directly inside the repository root, alongside `_RUN_ALL.R` (check for an extra wrapper folder after unzipping — see "What Figshare Delivers" above). `results/` ships pre-populated with every figure and table already generated, so you don't need to run anything to see the outputs.
 
 2. **Open the R Project**: Open `Biodiversity_and_energy_system_planning_2024.Rproj` in RStudio. This sets the working directory automatically.
 
@@ -186,13 +231,13 @@ All scripts write into the `results/` directory:
 ## Reproducing this Analysis
 
 ### Quick start
-1. Download the Figshare archive (doi:10.26188/29604590) and unzip it. The download contains a folder named `supplementary data_biodiversity and energy system planning_qld_2025`; rename it to `BESP_data_qld_2025` and place it inside the repository root (alongside `_RUN_ALL.R`).
+1. Download both Figshare items (doi:10.26188/29604590) — `BESP_data_qld_2025` and `results` — unzip each, and place them directly in the repository root, alongside `_RUN_ALL.R` (check for a wrapper folder after unzipping — see "What Figshare Delivers" above).
 2. Open `Biodiversity_and_energy_system_planning_2024.Rproj` in RStudio — this sets the working directory automatically via the `here` package.
 3. Run the full pipeline:
    ```r
    source("_RUN_ALL.R")
    ```
-4. Expected runtime: approximately 2 minutes on a modern laptop (default run from an empty `results/` directory, verified 2026-08-03 on R 4.4.2 / Windows 10 x64).
+4. Expected runtime: as downloaded, `results/` already contains every output, so this run mostly skips recomputation and finishes in well under a minute — each script's `overwrite_mode` guard sees the existing file and prints "already exists" rather than recalculating. If you delete or empty `results/` to force a full recompute, expect approximately 2 minutes on a modern laptop (verified 2026-08-03 on R 4.4.2 / Windows 10 x64).
 
 ### Platform requirements
 | Step | Tool required |
@@ -221,10 +266,12 @@ All scripts write into the `results/` directory:
 Each script sets `overwrite_mode <- FALSE` near the top. With this default, if an output file already exists in `results/`, the script prints a message and skips recomputation — this is what makes the default run take approximately 2 minutes. Set `overwrite_mode <- TRUE` to force recalculation and overwrite existing outputs. Two scripts — `Mean_spp_scenario_coverage.R` and `NPV_bar_plot.R` — always recompute regardless of this flag.
 
 ## File Size Information
-- **Total repository size**: ~7.8 GB
+- **`BESP_data_qld_2025/` on disk (as extracted)**: ~11.2 GB
+- **`results/` on disk (pre-populated deposit)**: ~12 MB
 - **Large files**:
-  - QLD_v202412_eplus_tx1.gdb.zip: 1.0 GB
-  - QLD_v202412_eplus_tx2.gdb.zip: 2.7 GB
+  - QLD_v202412_eplus_tx1.gdb.zip: 1.10 GB (extracts to ~1.1 GB)
+  - QLD_v202412_eplus_tx2.gdb.zip: 2.85 GB (extracts to ~0.96 GB)
+  - Zonation_QLD_biodiversity_feature_rasters.zip: 81 MB (extracts to ~730 MB — manual unzip only, see "Zip Archives in the Deposit" above)
   - feature_curves.csv: 17.7 MB
   - Various output TIF files: 45-66 MB each
 
@@ -246,6 +293,15 @@ The scripts use the pacman manager. Missing libraries (e.g., sf, here, ggpattern
 CRS: GDA2020 / MGA Zone 56 (EPSG:7856).
 
 Version History
+v1.4 (Aug 2026): Final pre-upload audit. Deposit is now exactly two Figshare downloads
+  (`BESP_data_qld_2025`, `results`), both placed at the repository root; code stays in
+  GitHub only. Removed the pre-extracted `Zonation_QLD_biodiversity_feature_rasters/`
+  copy from the deposit (kept the `.zip`; unzip manually before a from-scratch
+  Zonation run — no script does this automatically). Wired `Biodiversity_value_map.R`
+  into `_RUN_ALL.R` as an R-generated rendition of Figure 1a. Fixed a stale path
+  reference in `retrieve_spp_details.R` and resolved a filename/output-path collision
+  between two Figure 3 scripts. Documented that `results/` ships pre-populated.
+
 v1.3 (Aug 2026): Reproducibility fixes — corrected script path references in `_paths.R`, `land_use_competition_QLD.R`, `zero_coverage_species.R`, `tx_run_all.R`, and `domestic_export_map_iterations.R`; fixed `minimal_settings.z5` Zonation path; renamed two misspelled scripts; added wind/PV exclusion rasters to deposit; added "Reproducing this Analysis" section.
 
 v1.2 (May 2026): Replaced `RZ_area_outside_exclusions_and_ECNES.R` with `land_use_competition_QLD.R` as the data source for Supp. Fig 6. New script uses raster cell counting (terra) instead of vector intersection (sf) for faster, reproducible exclusion area summaries. Pipeline updated in `_RUN_ALL.R`.

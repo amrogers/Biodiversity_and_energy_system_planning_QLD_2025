@@ -24,6 +24,32 @@ Queensland 2025. The University of Melbourne. Dataset.
 https://doi.org/10.26188/29604590.v1
 
 
+What Figshare Delivers
+----------------------
+The Figshare deposit is TWO separate downloads. Both are placed inside the cloned
+GitHub repository, at the same level as _RUN_ALL.R:
+
+  BESP_data_qld_2025  -> place at <repo>/BESP_data_qld_2025/ (same relative
+                          location as in this repo). Contains the raw input data:
+                          Energy_system_model_outputs/, Zonation_analysis/.
+
+  results             -> place at <repo>/results/ (repo root, alongside
+                          BESP_data_qld_2025/). SHIPS PRE-POPULATED with every
+                          figure and table already generated. Running
+                          source("_RUN_ALL.R") will detect these and redraw them
+                          (~2 min) instead of recomputing from scratch. Delete or
+                          empty results/ to force a full recompute (60+ minutes
+                          for the spatial steps).
+
+Wrapper directories: depending on how each item downloads and unzips, you may end up
+with an extra nested folder. If so, move the INNER folder up one level so that
+BESP_data_qld_2025/ and results/ each sit directly in the repository root -- verify
+against the tree below before running anything.
+
+The code folders (Biodiversity_analysis/, Figure_code/, Energy system and
+transmission analysis/) are NOT part of the Figshare deposit -- they come from the
+GitHub repository itself.
+
 Repository Structure
 --------------------
 The project is organised as an R Project. Open the .Rproj file to automatically set
@@ -33,16 +59,18 @@ Biodiversity_and_energy_system_planning_2024/
 ├── Biodiversity_and_energy_system_planning_2024.Rproj  # <-- Open this first
 ├── _RUN_ALL.R                          # Master runner — executes full pipeline
 ├── _paths.R                            # Central path management (sourced by scripts)
-├── BESP_data_qld_2025/                 # Place unzipped Figshare data here
-│   ├── Energy_system_model_outputs/    # Processed CSV/XLSX files
-│   ├── Zonation_analysis/              # Zonation run files, weights, and outputs
-│   └── [.gdb files from Figshare]      # Large spatial databases (unzip before use)
+├── BESP_data_qld_2025/                 # <-- Figshare download 1 goes here
+│   ├── Energy_system_model_outputs/    # Processed CSV/XLSX files, GDBs
+│   └── Zonation_analysis/              # Zonation run files, weights, and outputs
 ├── Figure_code/                        # R analysis and figure scripts
-├── results/                            # Created automatically by scripts
+├── Biodiversity_analysis/              # Biodiversity analysis scripts
+├── Energy system and transmission analysis/  # Transmission pipeline scripts
+├── results/                            # <-- Figshare download 2 goes here (pre-populated)
 │   ├── figures/                        # PNG outputs
 │   ├── tables/                         # Summary CSV outputs
 │   ├── zonation_figures/               # Zonation performance curve outputs
-│   └── transmission_scenario_comparison/  # Spatial overlap statistics
+│   ├── zero_coverage/                  # Supp. Fig 2 outputs
+│   └── transmission_processing/        # TX pipeline intermediates
 └── Readme.txt
 
 
@@ -62,6 +90,39 @@ Conservation Data
 
 Spatial Exclusions
 - Suplementary table_other spatial exclusions.xlsx: Non-biodiversity spatial constraints
+
+
+Zip Archives in the Deposit
+----------------------------
+Every .zip file in BESP_data_qld_2025/ and how it gets extracted:
+
+  QLD_v202412_eplus_tx1.gdb.zip
+    Location:   Energy_system_model_outputs/Energy_system_analysis_scenarios/
+    Extraction: AUTOMATIC. Energy system and transmission analysis/
+                domestic_export_map_iterations.R extracts it on first run if
+                QLD_v202412_eplus_tx1.gdb/ is not already present. No manual
+                action needed.
+
+  QLD_v202412_eplus_tx2.gdb.zip
+    Location:   same folder
+    Extraction: AUTOMATIC, same script and mechanism.
+
+  Zonation_QLD_biodiversity_feature_rasters.zip
+    Location:   Zonation_analysis/
+    Extraction: MANUAL. No script extracts this -- it is only needed if you
+                re-run Zonation from scratch (see "Re-running the Zonation
+                Analysis" below). Unzip it yourself before attempting a
+                Zonation re-run; the R pipeline (_RUN_ALL.R) never reads it.
+
+Expected disk space after extraction (zips are kept after extracting, not
+deleted -- extracted size is IN ADDITION TO the zip):
+  QLD_v202412_eplus_tx1.gdb.zip                    1.10 GB zipped -> ~1.1 GB extracted
+  QLD_v202412_eplus_tx2.gdb.zip                    2.85 GB zipped -> ~0.96 GB extracted
+  Zonation_QLD_biodiversity_feature_rasters.zip    81 MB zipped   -> ~730 MB extracted
+                                                    (only if manually unzipped)
+
+Allow roughly an extra 2 GB free for the two GDBs once auto-extracted, plus ~730 MB
+more if you unzip the Zonation rasters for a from-scratch Zonation run.
 
 
 Analysis Scripts
@@ -151,14 +212,21 @@ Pipeline for Figure 3 (run in order):
     Note:     Copy output CSV to:
               BESP_data_qld_2025/Energy_system_model_outputs/tx1_new_transmission_summary.csv
 
-  Step 4 — transmission_length_tx1_tx2.R
-    Purpose:  Produces Figure 3 — total new TX length (km) vs biodiversity avoidance
-              scenario for TX1 and TX2, with existing network reference line.
+  Step 4 — Figure_code/tx_length_figure.R (run via _RUN_ALL.R)
+    Purpose:  Produces Figure 3 — new transmission build length (km) vs biodiversity
+              avoidance scenario for TX1 and TX2, stacked with the existing network.
     Input:    BESP_data_qld_2025/Energy_system_model_outputs/
-                   tx1_new_transmission_summary.csv
-                   tx2_new_transmission_summary.csv
-    Output:   results/figures/transmission_length_tx1_tx2.png
-              results/tables/tx_length_summary.csv
+                   Electricity_Transmission_Lines/Tx_outputs/
+                   tx1_domestic_transmission/QLD_threshold_tx_new/
+                        QLD_threshold_tx1_new_summary.csv
+                   tx2_domestic_transmission/QLD_threshold_tx_new/
+                        QLD_threshold_tx2_new_summary.csv
+    Output:   results/figures/tx_length_figure.png
+              results/tables/tx_new_build_length_tx1_tx2.csv
+    Note:     Two other scripts in transmission_mapping/ also produce Figure-3-like
+              plots from earlier drafts (tx_length_figure_superseded.R,
+              transmission_length_tx1_tx2.R) but are not part of the pipeline --
+              Figure_code/tx_length_figure.R is the only one _RUN_ALL.R calls.
 
 Supporting transmission scripts (not required for Figure 3):
 
@@ -214,35 +282,42 @@ folder contains older versions of these scripts. The canonical current versions 
 the transmission_mapping/ subfolder.
 
 
-Supporting Scripts (species_code/)
------------------------------------
-These scripts were used in data preparation and supporting analyses upstream of the
-main pipeline. They are not included in _RUN_ALL.R and require access to raw species
-distribution shapefiles not included in the Figshare data due to file size.
+Supporting Scripts (Biodiversity_analysis/)
+---------------------------------------------
+retrieve_spp_details.R is not included in _RUN_ALL.R and requires access to raw
+species distribution shapefiles. zero_coverage_species.R IS included in _RUN_ALL.R
+(Supp. Fig 2).
 
 retrieve_spp_details.R
   Purpose:  Extracts species attributes (scientific name, common name, EPBC threat
             status) from individual species distribution shapefiles and compiles
-            them into a single lookup CSV. Used to build the species metadata table.
-  Input:    data/QLD_100m_SNES_500spp/shapefiles/ (individual .shp files per species)
-  Output:   data/QLD_100m_SNES_500spp/species_attributes.csv
+            them into a single lookup CSV. Not run by default -- its output
+            (species_attributes.csv) already ships pre-computed in the deposit.
+  Input:    BESP_data_qld_2025/Zonation_analysis/Zonation_MNES_shapefiles/shapefiles/
+            (individual .shp files per species)
+  Output:   BESP_data_qld_2025/Zonation_analysis/Zonation_MNES_shapefiles/
+            species_attributes.csv
 
 zero_coverage_species.R
   Purpose:  Identifies species with zero coverage in the Zonation output and maps
             their distributions with CAPAD protected area boundaries overlaid.
             Used to investigate which species receive no representation at any
-            priority threshold.
-  Input:    data/QLD_100m_SNES_500spp/shapefiles/ (selected species .shp files)
-            data/CAPAD_QLD.shp
+            priority threshold. Run automatically by _RUN_ALL.R (Supp. Fig 2).
+  Input:    BESP_data_qld_2025/Zonation_analysis/Zonation_MNES_shapefiles/shapefiles/
+            (selected species .shp files)
+            BESP_data_qld_2025/Zonation_analysis/QLD_CAPAD/CAPAD_QLD.shp
   Output:   results/zero_coverage/species_distribution_map.png
             results/zero_coverage/map_number_lookup.csv
 
 RZ_area_outside_exclusions_and_ECNES.R
+  STATUS:   Not in _RUN_ALL.R. Superseded by land_use_competition_QLD.R as the data
+            source for Supp. Fig 6 (see Version History, v1.2). Requires proprietary
+            inputs not included in the Figshare deposit -- kept for reference only.
   Purpose:  Calculates the area of biodiversity red zones remaining outside
             renewable energy exclusion areas (PV and wind separately) using spatial
             difference operations. Supports optional parallel processing.
-  Input:    data/AUS_area_outside_exclusion_zones.gdb
-            data/Red_zones_QLD.shp
+  Input:    data/AUS_area_outside_exclusion_zones.gdb (not in deposit)
+            data/Red_zones_QLD.shp (not in deposit)
   Output:   Printed summary table; optional shapefiles via save_results()
 
 
@@ -274,12 +349,14 @@ Figure_code/LCOE_BV_exclusion_summary.R directly after updating its file paths.
 Manuscript Figure Reference
 ----------------------------
 Script → Manuscript figure mapping:
+  Biodiversity_value_map.R                             → Figure 1a (R rendition; ArcGIS
+                                                          Pro produces the manuscript figure)
   domestic_export_map_iterations.R                     → Figure 1b-e (VRE siting maps)
   NPV_bar_plot.R                                       → Figure 2 (NPV bar chart)
   Transmission_processing.R  }
   Transmission_save_layers_as_shapefiles.R  }          → Figure 3 (transmission length)
-  QLD_new_tx_processing_summary.R  }                      (pipeline steps 1-3)
-  transmission_length_tx1_tx2.R  }
+  QLD_new_tx_processing_summary.R  }                      (pipeline steps 1-3, via tx_run_all.R)
+  Figure_code/tx_length_figure.R  }                       (step 4, via _RUN_ALL.R)
   percent cost increase_line plot.R                    → Figure 4 (cost increase)
   Critically_endangered_mean_coverage_and_line_plot.R  → Table 1 / line plot
   Zonation curves.R                                    → Supplementary Fig 1D
@@ -300,13 +377,12 @@ System requirements:
 
 Setup Instructions
 
-1. Download the Figshare archive (doi:10.26188/29604590) and unzip it. The download
-   contains a folder named:
-     supplementary data_biodiversity and energy system planning_qld_2025
-   Rename that folder to BESP_data_qld_2025 and place it inside the repository root
-   (alongside _RUN_ALL.R). The GDB files (QLD_v202412_eplus_tx1.gdb and tx2) are
-   pre-extracted folders in Energy_system_model_outputs/Energy_system_analysis_scenarios/
-   and are ready to use without further unzipping.
+1. Download both Figshare items (doi:10.26188/29604590) -- BESP_data_qld_2025 and
+   results -- unzip each, and place them directly in the repository root, alongside
+   _RUN_ALL.R (check for an extra wrapper folder after unzipping -- see "What
+   Figshare Delivers" above). The GDB archives (QLD_v202412_eplus_tx1.gdb.zip and
+   tx2.gdb.zip) auto-extract on first run; no manual unzipping needed for those.
+   results/ ships pre-populated with every figure and table already generated.
 
 2. Open Biodiversity_and_energy_system_planning_2024.Rproj in RStudio.
    This sets the working directory automatically via the here package.
@@ -326,15 +402,20 @@ Reproducing this Analysis
 --------------------------
 
 Quick start
-1. Download the Figshare archive (doi:10.26188/29604590) and unzip it. The download
-   contains a folder named "supplementary data_biodiversity and energy system planning_qld_2025";
-   rename it to BESP_data_qld_2025 and place it inside the repository root.
+1. Download both Figshare items (doi:10.26188/29604590) -- BESP_data_qld_2025 and
+   results -- unzip each, and place them directly in the repository root, alongside
+   _RUN_ALL.R (check for a wrapper folder after unzipping -- see "What Figshare
+   Delivers" above).
 2. Open Biodiversity_and_energy_system_planning_2024.Rproj in RStudio -- this sets
    the working directory automatically via the here package.
 3. Run the full pipeline:
      source("_RUN_ALL.R")
-4. Expected runtime: approximately 2 minutes on a modern laptop (default run from
-   an empty results/ directory, verified 2026-08-03 on R 4.4.2 / Windows 10 x64).
+4. Expected runtime: as downloaded, results/ already contains every output, so this
+   run mostly skips recomputation and finishes in well under a minute -- each
+   script's overwrite_mode guard sees the existing file and prints "already exists"
+   rather than recalculating. If you delete or empty results/ to force a full
+   recompute, expect approximately 2 minutes on a modern laptop (verified
+   2026-08-03 on R 4.4.2 / Windows 10 x64).
 
 Platform requirements by step
   All _RUN_ALL.R steps (main figures and tables)
@@ -425,9 +506,10 @@ To re-run the analysis from scratch:
 
 1. Download and install Zonation 5: https://zonationteam.github.io/Zonation5/
 
-2. The biodiversity feature rasters are already extracted at:
+2. Unzip BESP_data_qld_2025/Zonation_analysis/Zonation_QLD_biodiversity_feature_rasters.zip
+   yourself -- no script does this. After extracting, the biodiversity feature
+   rasters should be at:
      BESP_data_qld_2025/Zonation_analysis/Zonation_QLD_biodiversity_feature_rasters/QLD_250m_500spp/
-   No unzipping required.
 
 3. Update file paths in the run files located at:
      BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/
@@ -460,15 +542,30 @@ Running _RUN_ALL.R prints a full session info block at the end of each run,
 recording the R version, OS, and all loaded package versions for reproducibility.
 
 File Size Information
-  Total Figshare data:            ~7.8 GB
-  QLD_v202412_eplus_tx1.gdb.zip:   1.0 GB
-  QLD_v202412_eplus_tx2.gdb.zip:   2.7 GB
-  feature_curves.csv:              17.7 MB
-  Zonation output TIF files:       45-66 MB each
+  BESP_data_qld_2025/ on disk (as extracted):  ~11.2 GB
+  results/ on disk (pre-populated deposit):    ~12 MB
+  QLD_v202412_eplus_tx1.gdb.zip:                1.10 GB (extracts to ~1.1 GB)
+  QLD_v202412_eplus_tx2.gdb.zip:                2.85 GB (extracts to ~0.96 GB)
+  Zonation_QLD_biodiversity_feature_rasters.zip: 81 MB (extracts to ~730 MB --
+                                                 manual unzip only)
+  feature_curves.csv:                           17.7 MB
+  Zonation output TIF files:                    45-66 MB each
 
 
 Version History
 ---------------
+v1.4 (Aug 2026): Final pre-upload audit. Deposit is now exactly two Figshare
+  downloads (BESP_data_qld_2025, results), both placed at the repository root;
+  code stays in GitHub only. Removed the pre-extracted
+  Zonation_QLD_biodiversity_feature_rasters/ copy from the deposit (kept the
+  .zip; unzip manually before a from-scratch Zonation run -- no script does this
+  automatically). Wired Biodiversity_value_map.R into _RUN_ALL.R as an
+  R-generated rendition of Figure 1a. Fixed a stale species-shapefile path
+  reference (retrieve_spp_details.R) and a folder-name error (species_code/ ->
+  Biodiversity_analysis/). Fixed Figure 3 script references throughout this
+  document (Figure_code/tx_length_figure.R is canonical, not
+  transmission_length_tx1_tx2.R). Documented that results/ ships pre-populated.
+
 v1.3 (Aug 2026): Reproducibility fixes -- corrected script path references in
   _paths.R, land_use_competition_QLD.R, zero_coverage_species.R, tx_run_all.R,
   and domestic_export_map_iterations.R; fixed minimal_settings.z5 Zonation path;
