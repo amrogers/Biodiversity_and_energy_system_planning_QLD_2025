@@ -1,3 +1,13 @@
+# =============================================================================
+# NZAU2 Scenario Mapping — Queensland
+# =============================================================================
+# STATUS: Not called by _RUN_ALL.R or tx_run_all.R (orphan). Requires data
+#         NOT included in the Figshare deposit and not present anywhere in
+#         _paths.R: here("data", "NZAU2_scenario_outputs") (4 GDBs) and
+#         here("data", "Aus_state_borders.shp"). Will fail with
+#         "Cannot find GDB file" for any user working from the deposited data.
+# =============================================================================
+
 # Load required libraries
 library(sf)
 library(dplyr)

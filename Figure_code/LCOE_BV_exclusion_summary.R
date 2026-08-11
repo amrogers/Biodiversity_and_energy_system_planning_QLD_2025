@@ -1,17 +1,23 @@
 ################################################################################
 # LCOE and Exclusion Zone Analysis
-# 
+#
+# STATUS: Not called by _RUN_ALL.R or tx_run_all.R (orphan). Requires data
+#         NOT included in the Figshare deposit and not present anywhere in
+#         _paths.R: here("data", "QLD_v202410_onshore_tx1.gdb"),
+#         here("data", "Zonation_exclusion_thresholds.shp"). Will fail with
+#         "Path does not exist" for any user working from the deposited data.
+#
 # Purpose: Create maps and statistics of Levelized Cost of Electricity (LCOE)
 #          overlaid with biodiversity exclusion zones
-# 
+#
 # Author: [Your Name]
 # Date: 2025-12-08
-# 
+#
 # Inputs:
 #   - GDB file with CPA polygons
 #   - CSV files with LCOE values
 #   - Shapefile with exclusion zones
-# 
+#
 # Outputs:
 #   - Maps showing LCOE with exclusion zone overlays
 #   - Histograms of LCOE distribution by exclusion zone

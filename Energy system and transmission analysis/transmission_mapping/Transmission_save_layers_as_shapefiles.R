@@ -13,7 +13,7 @@
 #   Step 1 → Transmission_processing.R
 #   Step 2 → THIS SCRIPT
 #   Step 3 → QLD_new_tx_processing_summary.R
-#   Step 4 → transmission_length_tx1_tx2.R (Figure 3)
+#   Step 4 → Figure_code/tx_length_figure.R (Figure 3), via _RUN_ALL.R
 #
 # Input:  results/transmission_processing/tx1/split_tx.gpkg
 #         (produced by Transmission_processing.R)

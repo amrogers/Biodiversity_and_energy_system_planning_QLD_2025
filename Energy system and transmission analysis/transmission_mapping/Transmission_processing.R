@@ -14,7 +14,7 @@
 #   Step 1 → THIS SCRIPT
 #   Step 2 → Transmission_save_layers_as_shapefiles.R
 #   Step 3 → QLD_new_tx_processing_summary.R
-#   Step 4 → transmission_length_tx1_tx2.R (Figure 3)
+#   Step 4 → Figure_code/tx_length_figure.R (Figure 3), via _RUN_ALL.R
 #
 # Input:  BESP_data_qld_2025/Energy_system_model_outputs/
 #              Energy_system_analysis_scenarios/QLD_v202412_eplus_tx1.gdb  (or tx2)

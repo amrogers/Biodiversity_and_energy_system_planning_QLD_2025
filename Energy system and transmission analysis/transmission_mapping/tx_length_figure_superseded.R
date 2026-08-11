@@ -1,23 +1,29 @@
 # =============================================================================
-# Figure 3: New Transmission Build Length vs Biodiversity Avoidance
+# SUPERSEDED — earlier draft of Figure 3, not part of any pipeline
 # =============================================================================
 # Author: Andrew Rogers
 # LLMs used: Claude AI
 # Date: Mar 2026
 # =============================================================================
-# Purpose: Generates Figure 3 and the supporting summary table. Reads the
-#          pre-computed new-build-only transmission length CSVs for TX1 and
-#          TX2 scenarios, sums across voltage classes per biodiversity
-#          threshold, maps thresholds to paper labels, and produces:
+# STATUS: Not called by _RUN_ALL.R or tx_run_all.R. Superseded by the
+#         canonical Figure 3 script: Figure_code/tx_length_figure.R (which
+#         IS wired into _RUN_ALL.R). This file originally shared both the
+#         same filename and the same output paths as that script — sourcing
+#         both in the same session would have silently overwritten one
+#         figure with the other. Renamed and its outputs redirected below to
+#         remove that collision; kept only for reference (different chart
+#         style: line/point rather than the canonical stacked bar). Do not
+#         wire this into a pipeline without first reconciling it with the
+#         canonical script.
 #
-#   - results/tables/tx_new_build_length_tx1_tx2.csv  (wide format summary)
-#   - results/figures/tx_length_figure.png             (Figure 3)
+# Purpose: Generates a line-chart variant of Figure 3 from the same inputs.
+#          Reads the pre-computed new-build-only transmission length CSVs
+#          for TX1 and TX2 scenarios, sums across voltage classes per
+#          biodiversity threshold, maps thresholds to paper labels, and
+#          produces:
 #
-# Pipeline position: Step 4 of 4 for Figure 3
-#   Step 1 → Transmission_processing.R
-#   Step 2 → Transmission_save_layers_as_shapefiles.R
-#   Step 3 → QLD_new_tx_processing_summary.R
-#   Step 4 → THIS SCRIPT
+#   - results/tables/tx_new_build_length_tx1_tx2_superseded.csv
+#   - results/figures/tx_length_figure_superseded.png
 #
 # Input files (paths$tx1_new_summary / paths$tx2_new_summary in _paths.R):
 #   Tx_outputs/tx1_domestic_transmission/QLD_threshold_tx_new/
@@ -70,8 +76,8 @@ if (!exists("overwrite_mode")) overwrite_mode <- TRUE
 
 out_dir  <- here("results", "figures")
 tbl_dir  <- here("results", "tables")
-out_plot <- file.path(out_dir, "tx_length_figure.png")
-out_tbl  <- file.path(tbl_dir, "tx_new_build_length_tx1_tx2.csv")
+out_plot <- file.path(out_dir, "tx_length_figure_superseded.png")
+out_tbl  <- file.path(tbl_dir, "tx_new_build_length_tx1_tx2_superseded.csv")
 
 for (d in c(out_dir, tbl_dir)) {
   if (!dir.exists(d)) dir.create(d, recursive = TRUE)

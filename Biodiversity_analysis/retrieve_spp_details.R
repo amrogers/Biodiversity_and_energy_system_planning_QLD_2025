@@ -10,11 +10,13 @@
 #          first non-empty feature in each file, and saves a species attribute
 #          lookup table (species_attributes.csv).
 #
-# Input:  BESP_data_qld_2025/QLD_100m_SNES_500spp/shapefiles/
+# Input:  BESP_data_qld_2025/Zonation_analysis/Zonation_MNES_shapefiles/shapefiles/
 #           {N}.shp  (one per species; N = integer species ID)
+#           (paths$snes_shapefiles in _paths.R)
 #
-# Output: BESP_data_qld_2025/QLD_100m_SNES_500spp/species_attributes.csv
+# Output: BESP_data_qld_2025/Zonation_analysis/Zonation_MNES_shapefiles/species_attributes.csv
 #           columns: ShapefileID, SpeciesName, CommonName, ThreatStatus
+#           (paths$snes_attributes in _paths.R)
 # =============================================================================
 
 if (!require(pacman)) install.packages("pacman")
@@ -40,7 +42,7 @@ output_file   <- paths$snes_attributes
 if (!dir.exists(shapefile_dir)) {
   stop(
     "Shapefile directory not found:\n  ", shapefile_dir, "\n\n",
-    "Expected: BESP_data_qld_2025/QLD_100m_SNES_500spp/shapefiles/"
+    "Expected: BESP_data_qld_2025/Zonation_analysis/Zonation_MNES_shapefiles/shapefiles/"
   )
 }
 
