@@ -63,12 +63,12 @@ Biodiversity_and_energy_system_planning_2024/
 - **eplus_Domestic_NPV_2025.xlsx**: Full NPV dataset (source for the figure CSV above)
 
 ### Conservation Data
-- **feature_curves.csv**: Zonation performance curves for 524+ conservation features
+- **feature_curves.csv**: Zonation performance curves for 545 conservation features
 - **Species_files_weights_table.xlsx**: Weighting schemes for species in conservation planning
 - **Species threat status tables**: IUCN and national threat classifications
 
 ### Spatial Exclusions
-- **Supplementary table_other spatial exclusions.xlsx**: Non-biodiversity spatial constraints
+- **Suplementary table_other spatial exclusions.xlsx** (sic — matches the actual filename in the deposit): Non-biodiversity spatial constraints
 
 ## Zip Archives in the Deposit
 

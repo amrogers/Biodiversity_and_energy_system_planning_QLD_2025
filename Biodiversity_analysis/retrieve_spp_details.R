@@ -5,7 +5,7 @@
 # LLMs used: Claude AI
 # Date: Jan 2026; Updated: Mar 2026
 # =============================================================================
-# Purpose: Loops over all shapefiles in QLD_100m_SNES_500spp/shapefiles/,
+# Purpose: Loops over all shapefiles in Zonation_MNES_shapefiles/shapefiles/,
 #          extracts CURRENT_NA, COMMON_NA, and THREATENED attributes from the
 #          first non-empty feature in each file, and saves a species attribute
 #          lookup table (species_attributes.csv).
