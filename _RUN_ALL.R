@@ -8,7 +8,10 @@
 # Purpose: Executes the full analysis pipeline in two independent steps.
 #
 #   Step 1 -- Main manuscript figures and tables:
-#     Figure 1a  -- Biodiversity prioritisation map (ArcGIS Pro -- path printed)
+#     Figure 1a  -- Biodiversity prioritisation map. The manuscript figure is
+#                   produced in ArcGIS Pro (path printed, not reproducible in
+#                   R); an R-generated rendition of the same rankmap is also
+#                   produced for cross-checking (Biodiversity_value_map.R).
 #     Figure 1b-e -- VRE siting maps (see below)
 #     Table 1    -- All-MNES scenario coverage (Mean_spp_scenario_coverage.R)
 #     Table 1    -- CE/EN mean coverage (data table path printed to console)
@@ -48,6 +51,7 @@ start_time <- Sys.time()
 # =============================================================================
 
 pipeline_step1 <- list(
+  "Figure 1a (R rendition)" = here("Biodiversity_analysis", "Biodiversity_value_map.R"),
   "Figure 1b-e (VRE maps)" = here("Figure_code", "energy_maps_figure.R"),
   "Table 1 (all MNES)"   = here("Biodiversity_analysis", "Mean_spp_scenario_coverage.R"),
   "Figure 2 (NPV)"       = here("Figure_code", "NPV_bar_plot.R"),
@@ -67,11 +71,15 @@ pipeline_step2 <- list(
 # =============================================================================
 
 outputs_step1 <- list(
-  "Figure 1a (priority map)"  = list(
+  "Figure 1a (priority map, ArcGIS Pro)" = list(
     path = here("results", "figures",
                 "Figure 1_protection scenario map and 2050 VRE mapping.tif"),
     type = "note",
     note = "Produced in ArcGIS Pro from Zonation rankmap.tif -- no R output."
+  ),
+  "Figure 1a (R rendition)"  = list(
+    path = here("results", "zonation_figures", "zonation_rankmap.png"),
+    type = "png"
   ),
   "Figure 1b-e (VRE maps)"    = list(
     path = here("Figure_code", "energy_maps_figure.R"),
@@ -251,9 +259,11 @@ if (display_mode) {
     cat(strrep("=", 50), "\n")
 
     cat("\n--- Step 1: Figure 1a (Biodiversity prioritisation map) ---\n")
-    cat("  NOTE: Figure 1a was produced in ArcGIS Pro using the Zonation rankmap.\n")
-    cat("  Source raster:", paths$rankmap, "\n")
-    cat("  Status: Skipped (ArcGIS Pro output)\n")
+    cat("  NOTE: The manuscript's Figure 1a was produced in ArcGIS Pro using the\n")
+    cat("  Zonation rankmap. Source raster:", paths$rankmap, "\n")
+    cat("  Status: Not reproducible in R (ArcGIS Pro output).\n")
+    cat("  An R-generated rendition of the same rankmap is produced below for\n")
+    cat("  cross-checking -- see 'Figure 1a (R rendition)' step.\n")
 
     cat("\n--- Step 1: Table 1 (CE/EN mean coverage) ---\n")
     cat("  NOTE: CE/EN mean coverage results are pre-computed.\n")

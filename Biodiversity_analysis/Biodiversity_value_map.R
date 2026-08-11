@@ -28,7 +28,7 @@ if (file.exists(local_override)) {
 # =============================================================================
 # USER CONTROL SETTINGS
 # =============================================================================
-overwrite_mode    <- TRUE   # Set TRUE to re-render figure even if it exists
+overwrite_mode    <- FALSE  # Set TRUE to re-render figure even if it exists
 overwrite_reclass <- FALSE   # Set TRUE to re-reclassify even if cached file exists
 
 thin_rows    <- FALSE        # Set TRUE to thin raster rows for faster rendering
