@@ -19,7 +19,8 @@
 #     Figure 3   -- New TX build length (tx_length_figure.R)
 #     Figure 4   -- Cost increase line plot (percent cost increase_line plot.R)
 #
-#   Step 2 -- Supplementary material figures:
+#   Step 2 -- Supplementary material figures and tables:
+#     Supp. Table 2 -- TX1 vs TX2 spatial comparison (2050_domestic_CPA_comparison.R)
 #     Supp. Fig 1D -- Zonation performance curves (Zonation curves.R)
 #     Supp. Fig 2  -- Zero-coverage species map (zero_coverage_species.R)
 #     Supp. Fig 6  -- Exclusion area barplot (land_use_competition_QLD.R -> exclusion_overlap_barplot.R)
@@ -60,6 +61,7 @@ pipeline_step1 <- list(
 )
 
 pipeline_step2 <- list(
+  "Supp. Table 2 (TX1 vs TX2 spatial comparison)" = here("Energy system and transmission analysis", "2050_domestic_CPA_comparison.R"),
   "Supp. Fig 1D (Zonation curves)"          = here("Figure_code", "Zonation curves.R"),
   "Supp. Fig 2 (zero-coverage spp.)"        = here("Biodiversity_analysis", "zero_coverage_species.R"),
   "Supp. Fig 6 data (land use competition)" = here("Biodiversity_analysis", "land_use_competition_QLD.R"),
@@ -108,6 +110,10 @@ outputs_step1 <- list(
 )
 
 outputs_step2 <- list(
+  "Supp. Table 2 (TX1 vs TX2 spatial comparison)" = list(
+    path = here("results", "transmission_scenario_comparison", "overall_comparison_stats.csv"),
+    type = "csv"
+  ),
   "Supp. Fig 1D (Zonation curves)"   = list(
     path = here("results", "zonation_figures", "zonation_performance_curves.png"),
     type = "png"

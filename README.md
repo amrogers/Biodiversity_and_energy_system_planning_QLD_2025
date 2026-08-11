@@ -49,7 +49,8 @@ Biodiversity_and_energy_system_planning_2024/
 │   ├── tables/                            # Summary CSV outputs
 │   ├── zonation_figures/                  # Zonation curve/rankmap outputs
 │   ├── zero_coverage/                     # Supp. Fig 2 outputs
-│   └── transmission_processing/           # TX pipeline intermediates
+│   ├── transmission_processing/           # TX pipeline intermediates
+│   └── transmission_scenario_comparison/  # Supp. Table 2 outputs
 └── README.md
 
 ## Data Files Description
@@ -248,6 +249,14 @@ All scripts write into the `results/` directory:
 | Re-running Zonation from scratch | Zonation 5 (Windows) |
 | Regenerating GDB model outputs | `netzero_navigate` external codebase (not distributed) |
 
+**Long install paths (Windows):** `2050_domestic_CPA_comparison.R` reads shapefiles nested
+several folders deep under `BESP_data_qld_2025/`. If your repository clone sits at a long
+path (this happens most often inside a deeply-nested OneDrive folder), the combined path
+can exceed Windows' classic 260-character `MAX_PATH` limit — R's `file.exists()` then
+silently returns `FALSE` for a file that actually exists. If Supp. Table 2 reports files
+missing that you can see in Explorer, clone or extract the repository closer to a drive
+root (e.g. `C:\BESP\`) rather than several folders deep.
+
 ### Figure and table reference
 | Output | Script | Key input | Tool |
 |--------|--------|-----------|------|
@@ -258,6 +267,7 @@ All scripts write into the `results/` directory:
 | Figure 2 (NPV) | `Figure_code/NPV_bar_plot.R` | `eplus_Domestic_NPV_figure.csv` | R |
 | Figure 3 (TX length) | Transmission pipeline — 4 scripts | `tx1.gdb`, `tx2.gdb`, TX shapefiles | R |
 | Figure 4 (cost increase) | `Figure_code/percent cost increase_line plot.R` | `cost_increase_results.csv` | R |
+| Supp. Table 2 (TX1 vs TX2 spatial comparison) | `Energy system and transmission analysis/2050_domestic_CPA_comparison.R` | `Tx_outputs/domestic_tx1_shapefiles/`, `domestic_tx2_shapefiles/` | R |
 | Supp. Fig 1D (Zonation curves) | `Figure_code/Zonation curves.R` | `feature_curves.csv` | R |
 | Supp. Fig 2 (zero coverage map) | `Biodiversity_analysis/zero_coverage_species.R` | species shapefiles | R |
 | Supp. Fig 6 (exclusion barplot) | `Biodiversity_analysis/land_use_competition_QLD.R` → `Figure_code/exclusion_overlap_barplot.R` | `BV_exclusion_area_overlap.csv` | R |
@@ -293,6 +303,35 @@ The scripts use the pacman manager. Missing libraries (e.g., sf, here, ggpattern
 CRS: GDA2020 / MGA Zone 56 (EPSG:7856).
 
 Version History
+v1.6 (Aug 2026): Recovered a working copy of `2050_domestic_CPA_comparison.R`
+  (Supplementary Table 2 — TX1 vs TX2 spatial overlap, technology-specific
+  overlap, and wind-solar co-occurrence analysis) from
+  `Z:/NetZero_scenarios_outputs/Code/2050_domestic_CPA_comparison_revised.R`,
+  a pre-repo working copy; the version committed to this repo in Jan 2026 was
+  an incomplete placeholder stub (see v1.5). Moved it to `Energy system and
+  transmission analysis/`, adapted it to read via `_paths.R`
+  (`paths$tx_outputs`) and write to `results/transmission_scenario_comparison/`
+  instead of hardcoded `Z:` paths, disabled `sf`'s s2 geometry engine to fix a
+  degenerate-vertex crash in `st_union()` (same fix already used in
+  `NZAU2_QLD_mapping.R`), and added a defensive check so a no-data case
+  reports a warning instead of crashing. Wired into `_RUN_ALL.R` as a
+  Step 2 pipeline entry. Verified by actually running it end-to-end (R 4.4.2):
+  output matches the original Oct 2025 run to within floating-point rounding
+  (e.g. TX1/TX2 overlap area at threshold 0%: 13729.10 km² then vs 13729.11 km²
+  now).
+
+v1.5 (Aug 2026): Moved `2050_domestic_CPA_comparison.R` from `Figure_code/` to
+  `Energy system and transmission analysis/` (produces Supplementary Table 2).
+  **STATUS UNRESOLVED:** the script's body is still a placeholder stub with no
+  working logic — git history confirms it has never contained more than this.
+  It cannot currently reproduce Supplementary Table 2; see open items. Not
+  listed as a runnable step until this is fixed. Redirected
+  `Biodiversity_value_map.R`'s classified-raster cache (`reclass_path`) from
+  `BESP_data_qld_2025/` to `results/zonation_figures/` — the pipeline must never
+  write into the data folder, since a clean-room junction would hit the real
+  deposit and a downloading user would have data they were told is read-only
+  silently modified.
+
 v1.4 (Aug 2026): Final pre-upload audit. Deposit is now exactly two Figshare downloads
   (`BESP_data_qld_2025`, `results`), both placed at the repository root; code stays in
   GitHub only. Removed the pre-extracted `Zonation_QLD_biodiversity_feature_rasters/`

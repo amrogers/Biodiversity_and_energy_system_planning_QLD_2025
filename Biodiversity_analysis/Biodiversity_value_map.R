@@ -56,7 +56,7 @@ output_dir   <- here("results", "zonation_figures")
 if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
 
 rankmap_path    <- file.path(zonation_dir, "250m_QLD_2024", "out_example1", "rankmap.tif")
-reclass_path    <- file.path(zonation_dir, "250m_QLD_2024", "out_example1", "rankmap_classified.tif")
+reclass_path    <- file.path(output_dir, "rankmap_classified.tif")
 final_plot_path <- file.path(output_dir, "zonation_rankmap.png")
 
 # =============================================================================
