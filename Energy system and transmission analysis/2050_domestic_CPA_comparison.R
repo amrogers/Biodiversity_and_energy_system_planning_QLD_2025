@@ -873,7 +873,10 @@ create_summary_report <- function(overall_results, tech_results, cooccurrence_re
     cat(sprintf("\u2022 TX2 generally requires LESS area than TX1 (avg %.1f%%)\n", mean_change))
   }
 
-  cat(sprintf("\nAll outputs saved to:\n%s\n", output_path))
+  # Print the repo-relative path, not the absolute output_path -- this text
+  # file ships in the public deposit and must not embed whichever machine
+  # generated it.
+  cat("\nAll outputs saved to:\nresults/transmission_scenario_comparison/\n")
 
   sink()
 
