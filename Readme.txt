@@ -87,7 +87,7 @@ Energy System Data
 Conservation Data
 - feature_curves.csv: Zonation performance curves for 545 conservation features
 - Species_files_weights_table.xlsx: Weighting schemes for species in conservation planning
-- Supplementary table 9. EPBC listed species and ecological communities and their associated threat status.xlsx: national threat classifications for species and ecological communities
+- Supplementary table_EPBC listed species and ecological communities and their associated threat status.xlsx: national threat classifications for species and ecological communities
 
 Spatial Exclusions
 - Suplementary table_other spatial exclusions.xlsx: Non-biodiversity spatial constraints
