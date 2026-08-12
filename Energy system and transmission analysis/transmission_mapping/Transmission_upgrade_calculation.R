@@ -138,7 +138,7 @@ for (sc in scenarios) {
 }
 
 # =============================================================================
-# 4. Build Supplementary Table 4 — Combined TX Easement Area Summary
+# 4. Build Combined TX Easement Area Summary
 # =============================================================================
 # Combines total_area_increase_tx1/tx2.xlsx, maps threshold numbers to labels,
 # and saves results/tables/Sup_info_table_tx_easement_area.xlsx
@@ -180,9 +180,9 @@ if (!file.exists(sup_tbl_path) || overwrite_mode) {
   sup_tbl <- bind_rows(combined)
 
   write_xlsx(sup_tbl, sup_tbl_path)
-  cat(sprintf("  ✓ Supplementary Table 4 saved: %s\n", sup_tbl_path))
+  cat(sprintf("  ✓ Combined TX easement area summary saved: %s\n", sup_tbl_path))
 } else {
-  cat("  >>> Supplementary Table 4 exists (set overwrite_mode = TRUE to regenerate).\n")
+  cat("  >>> Combined TX easement area summary exists (set overwrite_mode = TRUE to regenerate).\n")
 }
 
 cat("\n=== TRANSMISSION UPGRADE CALCULATION COMPLETE ===\n")

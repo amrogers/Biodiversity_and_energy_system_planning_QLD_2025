@@ -65,7 +65,7 @@ Biodiversity_and_energy_system_planning_2024/
 ### Conservation Data
 - **feature_curves.csv**: Zonation performance curves for 545 conservation features
 - **Species_files_weights_table.xlsx**: Weighting schemes for species in conservation planning
-- **Species threat status tables**: IUCN and national threat classifications
+- **Species threat status tables**: EPBC threat classifications
 
 ### Spatial Exclusions
 - **Suplementary table_other spatial exclusions.xlsx** (sic — matches the actual filename in the deposit): Non-biodiversity spatial constraints
@@ -157,8 +157,8 @@ source("Zonation curves.R")
 source("Figure_code/NPV_bar_plot.R")
 ```
 
-### 4. Exclusion Area Analysis — Supp. Fig 6 (`Biodiversity_analysis/land_use_competition_QLD.R` → `Figure_code/exclusion_overlap_barplot.R`)
-**Purpose**: Quantifies wind and PV exclusion areas within each Zonation priority band using raster cell counting (no polygonisation). Produces the CSV consumed by `exclusion_overlap_barplot.R` to generate Supp. Fig 6.
+### 4. Exclusion Area Analysis — Supp. Fig 4 (`Biodiversity_analysis/land_use_competition_QLD.R` → `Figure_code/exclusion_overlap_barplot.R`)
+**Purpose**: Quantifies wind and PV exclusion areas within each Zonation priority band using raster cell counting (no polygonisation). Produces the CSV consumed by `exclusion_overlap_barplot.R` to generate Supp. Fig 4.
 
 **Inputs**:
 - Zonation rankmap: `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/out_example1/rankmap.tif`
@@ -228,7 +228,7 @@ see "Reproducible environment (renv)" below.
 
 ### Expected Outputs
 All scripts write into the `results/` directory:
-- `results/figures/` — PNG outputs (Figures 1b–e, 2, 4, Supp. Fig 1D, 6)
+- `results/figures/` — PNG outputs (Figures 1b–e, 2, 4, Supp. Fig 1D, Supp. Fig 4)
 - `results/tables/` — Summary CSV outputs (Table 1 data)
 - `results/zonation_figures/` — Zonation performance curves
 - `results/figures/energy_maps/` — VRE siting maps (Figure 1b–e)
@@ -286,7 +286,7 @@ root (e.g. `C:\BESP\`) rather than several folders deep.
 | Supp. Table 2 (TX1 vs TX2 spatial comparison) | `Energy system and transmission analysis/2050_domestic_CPA_comparison.R` | `Tx_outputs/domestic_tx1_shapefiles/`, `domestic_tx2_shapefiles/` | R |
 | Supp. Fig 1D (Zonation curves) | `Figure_code/Zonation curves.R` | `feature_curves.csv` | R |
 | Supp. Fig 2 (zero coverage map) | `Biodiversity_analysis/zero_coverage_species.R` | species shapefiles | R |
-| Supp. Fig 6 (exclusion barplot) | `Biodiversity_analysis/land_use_competition_QLD.R` → `Figure_code/exclusion_overlap_barplot.R` | `BV_exclusion_area_overlap.csv` | R |
+| Supp. Fig 4 (exclusion barplot) | `Biodiversity_analysis/land_use_competition_QLD.R` → `Figure_code/exclusion_overlap_barplot.R` | `BV_exclusion_area_overlap.csv` | R |
 
 ### The `overwrite_mode` flag
 Each script sets `overwrite_mode <- FALSE` near the top. With this default, if an output file already exists in `results/`, the script prints a message and skips recomputation — this is what makes the default run take approximately 2 minutes. Set `overwrite_mode <- TRUE` to force recalculation and overwrite existing outputs. Two scripts — `Mean_spp_scenario_coverage.R` and `NPV_bar_plot.R` — always recompute regardless of this flag.
@@ -378,7 +378,7 @@ v1.4 (Aug 2026): Final pre-upload audit. Deposit is now exactly two Figshare dow
 
 v1.3 (Aug 2026): Reproducibility fixes — corrected script path references in `_paths.R`, `land_use_competition_QLD.R`, `zero_coverage_species.R`, `tx_run_all.R`, and `domestic_export_map_iterations.R`; fixed `minimal_settings.z5` Zonation path; renamed two misspelled scripts; added wind/PV exclusion rasters to deposit; added "Reproducing this Analysis" section.
 
-v1.2 (May 2026): Replaced `RZ_area_outside_exclusions_and_ECNES.R` with `land_use_competition_QLD.R` as the data source for Supp. Fig 6. New script uses raster cell counting (terra) instead of vector intersection (sf) for faster, reproducible exclusion area summaries. Pipeline updated in `_RUN_ALL.R`.
+v1.2 (May 2026): Replaced `RZ_area_outside_exclusions_and_ECNES.R` with `land_use_competition_QLD.R` as the data source for Supp. Fig 4. New script uses raster cell counting (terra) instead of vector intersection (sf) for faster, reproducible exclusion area summaries. Pipeline updated in `_RUN_ALL.R`.
 
 v1.1 (Jan 2026): Updated to full R Project structure; implemented here for relative pathing; added automated unzipping logic and LLM-assisted code optimization.
 

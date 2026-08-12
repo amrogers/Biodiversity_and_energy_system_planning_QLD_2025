@@ -23,7 +23,7 @@
 #     Supp. Table 2 -- TX1 vs TX2 spatial comparison (2050_domestic_CPA_comparison.R)
 #     Supp. Fig 1D -- Zonation performance curves (Zonation curves.R)
 #     Supp. Fig 2  -- Zero-coverage species map (zero_coverage_species.R)
-#     Supp. Fig 6  -- Exclusion area barplot (land_use_competition_QLD.R -> exclusion_overlap_barplot.R)
+#     Supp. Fig 4  -- Exclusion area barplot (land_use_competition_QLD.R -> exclusion_overlap_barplot.R)
 #
 # Figure 1b-e (energy_maps_figure.R):
 #   Verifies the six tx1 2050 maps exist in the analysis output folder
@@ -64,8 +64,8 @@ pipeline_step2 <- list(
   "Supp. Table 2 (TX1 vs TX2 spatial comparison)" = here("Energy system and transmission analysis", "2050_domestic_CPA_comparison.R"),
   "Supp. Fig 1D (Zonation curves)"          = here("Figure_code", "Zonation curves.R"),
   "Supp. Fig 2 (zero-coverage spp.)"        = here("Biodiversity_analysis", "zero_coverage_species.R"),
-  "Supp. Fig 6 data (land use competition)" = here("Biodiversity_analysis", "land_use_competition_QLD.R"),
-  "Supp. Fig 6 (exclusion barplot)"         = here("Figure_code", "exclusion_overlap_barplot.R")
+  "Supp. Fig 4 data (land use competition)" = here("Biodiversity_analysis", "land_use_competition_QLD.R"),
+  "Supp. Fig 4 (exclusion barplot)"         = here("Figure_code", "exclusion_overlap_barplot.R")
 )
 
 # =============================================================================
@@ -122,7 +122,7 @@ outputs_step2 <- list(
     path = here("results", "zero_coverage", "species_distribution_map.png"),
     type = "png"
   ),
-  "Supp. Fig 6 (exclusion barplot)"  = list(
+  "Supp. Fig 4 (exclusion barplot)"  = list(
     path = here("results", "figures", "Exclusions_stacked_bar_plot.png"),
     type = "png"
   )

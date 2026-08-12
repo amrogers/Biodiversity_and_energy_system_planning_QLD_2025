@@ -87,7 +87,7 @@ Energy System Data
 Conservation Data
 - feature_curves.csv: Zonation performance curves for 545 conservation features
 - Species_files_weights_table.xlsx: Weighting schemes for species in conservation planning
-- Supplementary table 9. EPBC listed species...: IUCN and national threat classifications
+- Supplementary table 9. EPBC listed species and ecological communities and their associated threat status.xlsx: national threat classifications for species and ecological communities
 
 Spatial Exclusions
 - Suplementary table_other spatial exclusions.xlsx: Non-biodiversity spatial constraints
@@ -312,7 +312,7 @@ zero_coverage_species.R
 
 RZ_area_outside_exclusions_and_ECNES.R
   STATUS:   Not in _RUN_ALL.R. Superseded by land_use_competition_QLD.R as the data
-            source for Supp. Fig 6 (see Version History, v1.2). Requires proprietary
+            source for Supp. Fig 4 (see Version History, v1.2). Requires proprietary
             inputs not included in the Figshare deposit -- kept for reference only.
   Purpose:  Calculates the area of biodiversity red zones remaining outside
             renewable energy exclusion areas (PV and wind separately) using spatial
@@ -364,7 +364,7 @@ Script → Manuscript figure mapping:
                                                           (TX1 vs TX2 spatial comparison)
   Zonation curves.R                                    → Supplementary Fig 1D
   zero_coverage_species.R                              → Supplementary Fig 2
-  exclusion_overlap_barplot.R                          → Supplementary Fig 6
+  exclusion_overlap_barplot.R                          → Supplementary Fig 4
   LCOE_BV_exclusion_summary.R                          → Supplementary (LCOE maps)
 
 
@@ -517,7 +517,7 @@ Figure and table reference
     Input:   species shapefiles
     Tool:    R
 
-  Supplementary Fig 6 (exclusion area barplot)
+  Supplementary Fig 4 (exclusion area barplot)
     Script:  Biodiversity_analysis/land_use_competition_QLD.R
              Figure_code/exclusion_overlap_barplot.R
     Input:   BV_exclusion_area_overlap.csv
