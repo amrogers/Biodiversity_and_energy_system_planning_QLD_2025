@@ -94,7 +94,16 @@ more if you unzip the Zonation rasters for a from-scratch Zonation run.
 
 ### Re-running the Zonation analysis
 1. Download and install Zonation 5: https://zonationteam.github.io/Zonation5/
-2. Update `features_example1.txt` and `minimal_settings.z5` in `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/`: replace `User_directory` with the full path to your `BESP_data_qld_2025/Zonation_analysis/` folder.
+2. **Update file paths in both Zonation config files** located at `BESP_data_qld_2025/Zonation_analysis/Zonation_output/250m_QLD_2024/`:
+
+   - **`features_example1.txt`** — every line has the form `3	User_directory\Zonation_QLD_biodiversity_feature_rasters\QLD_250m_500spp\N.tif`. Replace `User_directory` with the absolute Windows path to your `BESP_data_qld_2025/Zonation_analysis/` folder.
+   - **`minimal_settings.z5`** — contains `"User_directory\250m_QLD_2024\CAPAD_RZ.tif"`. Replace `User_directory` with the same path.
+
+   **Example**: if your repository is cloned to `C:\BESP\Biodiversity_and_energy_system_planning_2024\`, replace `User_directory` with `C:\BESP\Biodiversity_and_energy_system_planning_2024\BESP_data_qld_2025\Zonation_analysis` in both files. A corrected line in `features_example1.txt` would look like:
+   ```
+   3	C:\BESP\Biodiversity_and_energy_system_planning_2024\BESP_data_qld_2025\Zonation_analysis\Zonation_QLD_biodiversity_feature_rasters\QLD_250m_500spp\1.tif
+   ```
+   > **Note**: Zonation 5 requires absolute Windows paths. Relative paths and forward slashes will not work.
 3. Unzip `BESP_data_qld_2025/Zonation_analysis/Zonation_QLD_biodiversity_feature_rasters.zip` yourself (no script does this). After extracting, the biodiversity feature rasters should be at `BESP_data_qld_2025/Zonation_analysis/Zonation_QLD_biodiversity_feature_rasters/QLD_250m_500spp/`.
 4. Run `z5_example1.cmd`. If paths are correct this will overwrite the outputs in the `Zonation_output/` folder.
 
@@ -263,7 +272,8 @@ the verified package versions rather than whatever is current on CRAN.
 | Figure 1a — biodiversity priority map | ArcGIS Pro; no script provided; source raster is `rankmap.tif` |
 | Figure 3 — transmission pipeline | R + existing TX shapefiles (included in Figshare data) |
 | Re-running Zonation from scratch | Zonation 5 (Windows) |
-| Regenerating GDB model outputs | `netzero_navigate` external codebase (not distributed) |
+| Regenerating raw wind/PV suitability layers from scratch | Pascale et al.'s energy-system model (`netzero_navigate`, external — not part of this repository); the layers as used in this study are included in the Figshare deposit |
+| combined_wind.tif / combined_pv.tif + exclusion-overlap analysis (Supp. Fig. 4) | `Biodiversity_analysis/land_use_competition_QLD.R` (included in this repo) |
 
 **Long install paths (Windows):** `2050_domestic_CPA_comparison.R` reads shapefiles nested
 several folders deep under `BESP_data_qld_2025/`. If your repository clone sits at a long
@@ -340,9 +350,8 @@ v1.7 (Aug 2026): Added `renv.lock`, generated via `renv::snapshot()` against
 
 v1.6 (Aug 2026): Recovered a working copy of `2050_domestic_CPA_comparison.R`
   (Supplementary Table 2 — TX1 vs TX2 spatial overlap, technology-specific
-  overlap, and wind-solar co-occurrence analysis) from
-  `Z:/NetZero_scenarios_outputs/Code/2050_domestic_CPA_comparison_revised.R`,
-  a pre-repo working copy; the version committed to this repo in Jan 2026 was
+  overlap, and wind-solar co-occurrence analysis) from a pre-repo working copy;
+  the version committed to this repo in Jan 2026 was
   an incomplete placeholder stub (see v1.5). Moved it to `Energy system and
   transmission analysis/`, adapted it to read via `_paths.R`
   (`paths$tx_outputs`) and write to `results/transmission_scenario_comparison/`

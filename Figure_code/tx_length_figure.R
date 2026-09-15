@@ -282,9 +282,10 @@ fill_values <- c(
            paste("New build", names(NEWBUILD_COLOURS), sep = "|"))
 )
 
-# Legend shows only new build scenario colours
-fill_breaks <- paste("New build", SCENARIO_LEVELS, sep = "|")
-fill_labels <- SCENARIO_LEVELS
+# Legend: new build scenario colours + one grey key for existing network
+fill_breaks <- c(paste("New build", SCENARIO_LEVELS, sep = "|"),
+                 "Existing network|BAU")          # any scenario works — all grey
+fill_labels <- c(SCENARIO_LEVELS, "Existing transmission")
 
 p <- ggplot(
   data = stack_data,
