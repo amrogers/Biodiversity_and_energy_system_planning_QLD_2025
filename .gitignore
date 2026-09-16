@@ -20,3 +20,15 @@ Energy system and transmission mapping_code/old code/
 
 # Katherine edit files — reviewer edits, not committed
 *_katherine_edit*
+
+# Claude Code session data — not for publication
+.claude/
+
+# Archive zips — data hosted on Figshare
+*.zip
+
+# Internal working notes and audit logs (audit logs on audit-logs branch)
+instructions.txt
+DIAGNOSTIC_REPORT.md
+FINAL_AUDIT_REPORT.md
+TABLE1_DISCREPANCY_REPORT.md
